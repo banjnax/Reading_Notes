@@ -1,0 +1,35 @@
+﻿hibernate对数据库的管理是之对象话。
+spring集成了依赖注入和AOP
+struts负责MVC
+JNDI是通过名字（String）来在容器中找bean(类class)
+EJB负责分布式处理（部署在多台机子上），并支持分布式事务处理（就是在多台机子上可以共同维护一个事务（trsaction））
+EJB的重要内容：skeleton（骨架），stub(存根)，在服务器端是skeleton真正的interface实现类，stub是伪interface实现类，他在实现类的方法里通过远程连接调用skeleton里的方法。：两种bean,session bean和entity bean（JPA）
+接口不能实例化，但是接口可以代理实现他的类，这样的好处是简化客户端代码并增强业务逻辑的安全性
+有状态的session bean四通过令牌（token）来区分不同的客户端（比如不同的浏览器窗口）(struts2 action)
+无状态的session bean，单粒（spring）
+粗粒度数据访问（减少远程方法调用，一次性传完业务逻辑所需参数）
+当bean实现多个接口时，必须指明哪些是remote的哪些是local的
+我们也可以在接口上定义remote和local，因此在实现的bean上就不需要定义了
+JMS：Java的消息服务（客户端之间异步通信），一个client放一个消息给server，然后server在转发给另一个client（有可能消息很多的话，需要排队等待发送（消息队列））：用处，如果调用的method不是需要很及时的做出反映的话（比如说大家都同时刷卡买饭，我们你可能等到我们刷卡的信息到达终端之后在刷下一张卡，这样效率太慢了（因为学生很多的），因此可以一直刷卡，然后放到消息队列里，服务器呢，也在不停的发，但是并没有同步，有可能服务器发送第三个数据的时候，已经有5个同学刷卡了（这个时候消息队列里就有2个学生的刷卡信息等待被发送）），那就可以尽管发，可以提高效率（同步的话必须开好几个线程，浪费资源）有两种模式：P2P(1对1)，和pub/sub（1对多）ejb10视频重点看
+JMS编程模型：MDB消息驱动bean（onMessage（）负责处理接受的消息），负责接受queue的消息（异步模式），然后指定destination（使用JNDI进行查询），在client端，使用queueFactory（JNDI来查询）来建立一个Queue消息队列或者topic消息队列，使用session来构建一个会话，创建sender来发送信息（message也是需要创建出来的，因为message的种类很多），通过destination把消息发送出去，如此的话，在MDB那一端就像是设置了中断一样来接受来自相同destination的消息，提高效率。
+如果是queue，若是用多个client来接受的话，只有其中的一个会接受到消息，而且接受者随机
+如果要把ejb发布为webService，则ejb必须是无状态的在bean上加注解@WebService,不需要remote和local默认有一个local，并在可被调用的method上添加注解@WebMethod,部署到应用服务器上生成WSDL文件（是一个xml格式的文件包含了bean的基本信息，如方法，参数等，client端拿到这个文件就可以来调用服务器端的代码了，xml没有包含代码逻辑的架构，就像是对interface的说明），就可被webservice客户端来调用了通过SOAP协议，参数由xml传送。
+WebService与EJB远程调用的最大的区别在于：如果用EJB调用的话，我们必须要把EJB服务器端的interface打成包放在client来进行开发，但是利用WebService我们直接通过SOAP协议和WSDL文件就能进行开发（WebService一般用XFIRE开发：XFire是Java实现WebService的一个框架,可以完成webservice服务的发布以及对发布接口的调用）
+在EJB开发中拦截器也是很好实现的，添加注解@interceptor（拦截器classname.class），然后在拦截器里随便写个方法传入参数context，并利用@AroundInvoke注解类，（context.process（）就是执行被拦截的类，然后我们可以在这个之前写点东西，在这个之后写点东西）
+POJO:（plain old java object）简单的java对象
+EJB中的JPA中的entity映射数据库文件是自动的，数据库中没有就自己创建相应的表，但是hibernate里必须有映射文件，这是一个区别（他们两个对注解都是一样的）
+entity也可以只写field不写get,set方法
+JPA是一种规范（也可以说是一种编程接口），hibernate实现了JPA，TopLink也实现了JPA，OpenJPA实现了JPA，EJB也可以说实现了JPA。是一种规范，一个标准。
+不同的应用服务器，使用不同的JPA实现：
+JBoss:hibernate
+WebLogic:OpenJPA
+Oracle:TopLink
+
+JPA中的关联映射：
+多对一：再多的一端添加一个一的一端的外键，有cascade属性定义当对此对象操作时（增删改查）是否对关联对象做同样的操作
+一对一：
+1.主键关联（@OneToOne和@PrimatyKeyJoinColumn），一个属性的值依赖与另一个表的主键；如果是双向的话，就在另一端加上---->@OneToOne(mappedBy="一那边的关联属性名"),mappedBy的意思是指到对方那里去找映射策略，并使用对方的映射策略
+2.外键关联，
+一对多：@OneToMany并使用set或list
+
+建立映射的作用就是通过这个对象可以找到与它关联的对象.并在程序中可以访问

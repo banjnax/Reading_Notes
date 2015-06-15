@@ -1,0 +1,9 @@
+﻿cut：对标准输入的字符串进行处理
+cut -bn-m:以byte为单位，从第n个byte开始，取m个
+cut -bn,m:以byte为单位，截取第n,m个byte
+cut -b-n,m:以byte为单位，截取1-n,和第m个
+-c:以charactor为单位
+-d:指定分隔符，默认为tab
+-s:使标准输入中没有delimeter
+cut -f1:截取第1个域
+比如:cat test.txt|cut -f2 -d" "//就是以空格为分隔符截取第二列

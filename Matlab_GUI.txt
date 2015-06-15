@@ -1,0 +1,26 @@
+﻿1.所有的函数都是在主函数中被调用的，我们点击鼠标，滑动窗口的时候，系统会调用相应的callbanck来执行要发生的动作。
+handles：从这个结构体变量里可以找到程序所有的数据，比如控件的信息，菜单信息，axes信息等。handles在各个callback里转来转去。
+他可以随便往里面放数据，比如在一个控件的callback里，执行handles.test_x=xxx,就把test_x这个变量放到handles里了。然后保存，guidata(hObject,handles);
+如果要取自己的数据，用handles.去控件的信息，用handles.get(...),.set(...)
+M-Fiel里的一些函数
+Opening Function:做初始化的工作，在GUI开始运行但是不可见的时候
+Output function:可以向命令行输出数据
+Callbacks:控件的触发后的动作函数
+函数的参数：所有的function都会有两个参数，hObject,handles,注意如果想修改的话，最后记得保存guidata(hObject,handles);
+
+Opening Function:做初始化的工作，在GUI开始运行但是不可见的时候
+my_gui（‘。。。’，‘。。。’），来进行初始哈传参数，会保存在varagin里比如
+my_gui（'a','b'）;则varagin{1}='a',则varagin{2}='b'
+也可以初始化变量，比如my_gui（'Position',[1 2 32 43]）；
+
+如何在GUI之间传递数据 ：
+一种简单的主从式传递：
+类似于函数调用：[out1 out2]=gui2(in1,in2);
+在gui2的openfcn中可以接受in1,in2利用varayin{1},varayin{2}
+同时设置uiwait(handles.figure1)//figure1为gui2的tag,设置这个的目的在于等待uiresume(handles.figure1)来接着执行，要注意我们要用调用的方式调用gui2的话，他会一直到底把openfcn执行完然后返回了，所以我们在openfcn中加入uiwait让我们在里面做点处理在继续执行。
+用过uiwait后我们就可以在gui2中的组件的callback中进行操作等了，知道我们干完事之后，利用uiresume返回到uiwait,同时，我们可以在outputfcn中来进行返回值的设置，比如varayout{1}=xxx,因为我们返回到uiwait执行时，他会顺带着把outputfcn带回去，在outputfcn最后一行加上delete(handles.figure1)就大功告成了。整理一下：
+1.利用[out1 out2]=gui2(in1,in2)这种方式进行参数的传递
+2.在openfcn中加上uiwait(handles.figure1)
+3.在outputfcn中设置返回值，并添加delete(handles.figure1)
+4.在想返回的callback里调用resume(handles.figure1)
+

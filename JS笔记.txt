@@ -1,0 +1,189 @@
+﻿JavaScript 被数百万计的网页用来改进设计、验证表单、检测浏览器、创建cookies，以及更多的应用。在客户端执行
+document.write：在解析HTML之前写入一段HTML代码，只能在 HTML 输出中使用 document.write。如果您在文档加载后使用该方法（比如在函数中），会覆盖整个文档。
+alert() 函数在 JavaScript 中并不常用，但它对于代码测试非常方便。
+onclick 事件只是您即将在本教程中学到的众多事件之一。onclick="func_name"
+x=document.getElementByID("some id")：通过ID来获得组件
+x.innerHTML="html code";//改变x的内容
+JS代码格式为：
+<script>
+function fun_name(){
+code...
+}
+</script>
+
+改变样式用：x.style.color="xxx";
+
+
+外部 JavaScript 文件的文件扩展名是 .js。
+如需使用外部文件，请在 <script> 标签的 "src" 属性中设置该 .js 文件：
+<script src="myScript.js"></script>
+
+对代码中字符串进行折行用\
+//，/* */为注释
+JS中变量类型修饰符只有var,但是可以加双引号表示文本，也可以定义对象。。。
+var name="Gates", age=56, job="CEO";
+JavaScript 拥有动态类型。这意味着相同的变量可用作不同的类型。
+JavaScript 只有一种数字类型。数字可以带小数点，也可以不带；
+var cars=new Array();cars[0]="Audi";
+var cars=new Array("Audi","BMW","Volvo");
+var cars=["Audi","BMW","Volvo"];
+
+对象由花括号分隔。在括号内部，对象的属性以名称和值对的形式 (name : value) 来定义。属性由逗号分隔；
+var person={
+firstname:"Bill",
+'fun1': function() {
+            document.writeln(this.id + '-' + this.name);//以"对象.属性"方式访问
+        }, 
+lastname:"Gates", 
+id:5566};
+name=person.lastname;
+name=person["lastname"];
+当您声明新变量时，可以使用关键词 "new" 来声明其类型：
+var carname=new String;
+var x=      new Number;
+var y=      new Boolean;
+var cars=   new Array;
+var person= new Object;
+
+JavaScript 中的所有事物都是对象：字符串、数字、数组、日期，等等。
+在 JavaScript 中，对象是拥有属性和方法的数据。
+myFunction(argument1,argument2)
+return x;
+
+==等于，===全等
+运算操作与C,Java语言一样控制语句也是一样。注意，循环for多加了一种形式x in xxx
+break 和 continue 语句仅仅是能够跳出代码块的语句。但是标记可以调到任何地方；
+label_name:
+{语句}
+错误控制：try catch trrow 
+
+可以像java一样操作属性与方法。
+
+onload 和 onunload 事件会在用户进入或离开页面时被触发。
+onload 事件可用于检测访问者的浏览器类型和浏览器版本，并基于这些信息来加载网页的正确版本。
+onload 和 onunload 事件可用于处理 cookie。
+onchange 事件常结合对输入字段的验证来使用。
+如：<input type="text" id="fname" onchange="upperCase()">
+onmouseover 和 onmouseout 事件可用于在用户的鼠标移至 HTML 元素上方或移出元素时触发函数。
+onmousedown, onmouseup 以及 onclick 构成了鼠标点击事件的所有部分。首先当点击鼠标按钮时，会触发 onmousedown 事件，当释放鼠标按钮时，会触发 onmouseup 事件，最后，当完成鼠标点击时，会触发 onclick 事件。
+
+如需向 HTML DOM 添加新元素，您必须首先创建该元素（元素节点），然后向一个已存在的元素追加该元素。
+如：
+<div id="div1">
+<p id="p1">这是一个段落</p>
+<p id="p2">这是另一个段落</p>
+</div>
+
+<script>
+var para=document.createElement("p");
+var node=document.createTextNode("这是新段落。");
+para.appendChild(node);
+
+var element=document.getElementById("div1");
+element.appendChild(para);
+</script>
+
+如需删除 HTML 元素，您必须首先获得该元素的父元素：parent.removeChild(child);
+如果能够在不引用父元素的情况下删除某个元素，就太好了。
+不过很遗憾。DOM 需要清楚您需要删除的元素，以及它的父元素。
+这是常用的解决方案：找到您希望删除的子元素，然后使用其 parentNode 属性来找到父元素：
+var child=document.getElementById("p1");
+child.parentNode.removeChild(child);
+
+
+创建对象实例：person=new Object();
+
+对象构造器：
+function person(firstname,lastname,age,eyecolor)
+{
+this.firstname=firstname;
+this.lastname=lastname;
+this.age=age;
+this.eyecolor=eyecolor;
+	function changeName(name)
+	{
+		this.lastname=name;
+	}
+}
+var myFather=new person("Bill","Gates",56,"blue");
+JavaScript for...in 语句循环遍历对象的属性。
+
+使用 for...in 声明来循环输出数组中的元素。
+ concat() 方法来合并两个数组。
+使用 join() 方法将数组的所有元素组成一个字符串。
+
+使用 random() 来返回 0 到 1 之间的随机数。
+通过 new 关键词来定义 RegExp 对象。以下代码定义了名为 patt1 的 RegExp 对象，其模式是 "e"：
+var patt1=new RegExp("e");
+当您使用该 RegExp 对象在一个字符串中检索时，将寻找的是字符 "e"。
+RegExp 对象有 3 个方法：test()、exec() 以及 compile()。
+test() 方法检索字符串中的指定值。返回值是 true 或 false。
+exec() 方法检索字符串中的指定值。返回值是被找到的值。如果没有发现匹配，则返回 null。
+compile() 方法用于改变 RegExp。
+compile() 既可以改变检索模式，也可以添加或删除第二个参数。
+其他 Window 方法
+一些其他方法：
+window.open() - 打开新窗口
+window.close() - 关闭当前窗口
+window.moveTo() - 移动当前窗口
+window.resizeTo() - 调整当前窗口的尺寸
+window.location 对象在编写时可不使用 window 这个前缀。
+一些例子：
+location.hostname 返回 web 主机的域名
+location.pathname 返回当前页面的路径和文件名
+location.port 返回 web 主机的端口 （80 或 443）
+location.protocol 返回所使用的 web 协议（http:// 或 https://）
+window.history 对象在编写时可不使用 window 这个前缀。
+为了保护用户隐私，对 JavaScript 访问该对象的方法做出了限制。
+一些方法：
+history.back() - 与在浏览器点击后退按钮相同
+history.forward() - 与在浏览器中点击按钮向前相同
+
+确认框用于使用户可以验证或者接受某些信息。
+当确认框出现后，用户需要点击确定或者取消按钮才能继续进行操作。
+如果用户点击确认，那么返回值为 true。如果用户点击取消，那么返回值为 false。
+语法：
+confirm("文本")
+
+提示框经常用于提示用户在进入页面前输入某个值。
+当提示框出现后，用户需要输入某个值，然后点击确认或取消按钮才能继续操纵。
+如果用户点击确认，那么返回值为输入的值。如果用户点击取消，那么返回值为 null。
+语法：
+prompt("文本","默认值")
+
+通过使用 JavaScript，我们有能力作到在一个设定的时间间隔之后来执行代码，而不是在函数被调用后立即执行。我们称之为计时事件。
+在 JavaScritp 中使用计时事件是很容易的，两个关键方法是:
+setTimeout()
+未来的某时执行代码
+clearTimeout()
+取消setTimeout()
+
+var t=setTimeout("alert('5 seconds!')",5000)
+cookie是在计算机与浏览器交互是存在存在计算机中的数据，目的是为了再次访问某网页是进行一些处理工作。
+
+jQuery 是目前最受欢迎的 JavaScript 框架。
+它使用 CSS 选择器来访问和操作网页上的 HTML 元素（DOM 对象）。
+jQuery 同时提供 companion UI（用户界面）和插件。
+Prototype 通过提供类和继承，实现了对 JavaScript 的增强。
+MooTools 也是一个框架，提供了可使常见的 JavaScript 编程更为简单的 API。
+MooTools 也含有一些轻量级的效果和动画函数。
+下面是其他一些在上面未涉及的框架：
+YUI - Yahoo! User Interface Framework，涵盖大量函数的大型库，从简单的 JavaScript 功能到完整的 internet widget。
+Ext JS - 可定制的 widget，用于构建富因特网应用程序（rich Internet applications）。
+Dojo - 用于 DOM 操作、事件、widget 等的工具包。
+script.aculo.us - 开源的 JavaScript 框架，针对可视效果和界面行为。
+UIZE - Widget、AJAX、DOM、模板等等。
+
+您总是希望网页可以尽可能地快。您希望页面的容量尽可能地小，同时您希望浏览器尽可能多地进行缓存。
+如果许多不同的网站使用相同的 JavaScript 框架，那么把框架库存放在一个通用的位置供每个网页分享就变得很有意义了。
+CDN (Content Delivery Network) 解决了这个问题。CDN 是包含可分享代码库的服务器网络。
+Google 为一系列 JavaScript 库提供了免费的 CDN，包括：
+jQuery
+Prototype
+MooTools
+Dojo
+Yahoo! YUI
+如需在您的网页中使用 JavaScript 框架库，只需在 <script> 标签中引用该库即可：
+引用 jQuery
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js">
+</script>

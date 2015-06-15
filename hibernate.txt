@@ -1,0 +1,20 @@
+﻿junit可以让你在一个java原文件中写多个测试方法，然后你可以一个一个的做测试而不与其他方法冲突。
+hibernate日志系统主要有slf接口定义，在此之下，实现他的有slf4j,log4j,....，但是我们在hibernate中做日志的时候，不仅需要slf的api，和他的实现，我们还需要slf与其实现的转换器（因此需要三个jar包，这是一种适配器模式）。JUNIT提供个单元调试的能力，也就是提供了对某个class（或方法）的测试。
+注解的好处:举个简单的例子，我们用@override的时候，当你重写父类的方法的时候，如果不加注解，你写错了但不会报错（他会当成你自己定义的方法），而加上注解，他就知道，哦，你小子是要重写啊，然后就去找父类的方法，然后给你提示。
+ID生成策略：native（hibernate做决定）,identity（sqlserver）,sequence（oracle）,uuid(全球唯一)。可以用xml或者annotation
+用联合主键，就一定要实现序列化和重写equals，hashcode方法
+单粒模式是指一个类仅有开一个实例，并且自行实例化向整个系统提供。
+sessionfactory维护的最重要的东西就是数据库连接池，每一个session就是一个客户端与服务器端的会话。
+session的currentsession有两个thread和jta(java trasaction api)（分布式数据库事务）
+jpa(java persistence api)
+getcurrentsession和opensession生成的session不是同一种session，因此两者不可混用
+对象的三种状态：瞬态(未save，不在缓存中，只是独立存在)，持久（save后，数据库和缓存中都有），托管（提交后，session缓存断掉，不在缓存中，但在内存中）
+session中的缓存（先找缓存，再找数据库），内存中的缓存，为了提高效率不去数据库再取数据，session在内存中有一块缓存，存放着对象的引用(map类型)
+session管理数据库的增删改查
+save(),delete(),load(,)(拿出来就是持久状态),get(),update()
+load与get的区别：当用load的时候，返回的只是一个对象代理并没有去数据库中找，是在用到这个对象的时候才去找数据库；而get是立马就去连数据库，返回的是一个实在的对象
+在p状态可以更新
+在xml中指定dynamic-update为true，即可动态局部更新（前提条件是对象在缓存中），
+session.merge(s)合并数据库里的与s，局部更新，先select,然后对比，然后合并。
+hql（ejbql，面向对象的查询语言）语句和sql语句差不多，只不过是更新对象而不是记录。
+session.clear()是强制清理缓存；session.flush()是强制同步缓存和数据库（推到数据库里）；

@@ -1,0 +1,15 @@
+﻿Mysql内嵌了几个数据库引擎，比如innoDB(不支持全文本查找),MyISAM等。
+利用正则表达式：REGEXP '\\([0-9] tes?\\)'
+全文本查找FULLTEXT：FULLTEXT(attri),指定引擎为MyISAM,在建表后加上ENGINE=MyISAM;并利用Match()指定被搜索的列,Against()指定要搜索的表达式。
+存储过程：使用存储过程可以定义一个SQL集合函数，如：
+CREATE PROCEDURE test(
+IN test_input INT,
+OUT test_output DECIMAL(8,2)
+)
+BEGIN 
+SELECT Sum(price*quantity) FROM items WHERE ordwe_num=test_input INTO test_output;
+END;
+调用这个存储过程：CALL test(20051,@total)
+SELECT @total;->输出total的值
+Trigger应用于delete,insert,update,有after和before之分，对于insert有NEW表记录插入后的表，对于update有NEW和OLD两张表记录改之前和改之后，delete有OLD表访问被删除的行。
+事务：有rollback,commit,savepoint

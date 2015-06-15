@@ -1,0 +1,138 @@
+﻿现在明白了，为什么要在web.xml配置那个/*的filter了，因为在访问任意路径的时候，再次之前，就要执行<filter>指定的类，也就是交给struts来处理了。
+struts.xml
+1.package-->action(package是为了功能聚合用namespace标识，可以防止action重名，可以有name属性)：：注意哦，name,namespace没关系哦，action至于namespace有关系
+package:namespace指定在webapp下的路径，比如namespace=“/my”，actionname="hello",我们访问的时候，这样访问：http://xxx/webapp_name+namespace+action_name=http://xxx/webapp_name/my/hello：：（在地址栏如果是webapp_name/a/b/c/d那么struts就会去找namespace为/a/b/c的package，然后再去他下面找action叫d的action）
+namesapce为空的话，表示可以接受任意路径的action
+result会返回的jsp页面
+struts2常量配置(key-value):
+<constant name="struts.devMode" value="true">//开发模式是指改两下配置马上又反馈
+<constant name="struts.enable.DynamicMethodInvocation" value="true">//可以使用动态方法调用
+action::name..class="",没写方法，默认执行execute(),继承actionSupport
+<result name="xxx(由action处理类返回)">/xx.jsp</result>(jsp的路径为webapp下的相对路径，与namespace无关)
+web.xml中的<welcome-file-list><welcome-file>index.jsp</welcome-file></welcome-file-list>//如果在struts.xml中找不到action就去web.xml中找他，在找不到就报错了。其实namespace中第一个“/”加不加都行
+在href和form里的action属性都可以用namespace/action来访问action
+而且要注意：：jsp中的路径问题：：jsp只以地址栏中的路径作为他的路径，因此从一个jsp跳到另一个jsp要注意路径的问题（虽然在物理上他们两在同一个路径下，但是逻辑上不在（因为一个jsp是把action的路径作，切记切记为当前的路径））
+注意：：在href中前面加上/的时候就代表了站点的根路径，因此写action的时候不要加/而且千万要注意此时不管是什么路径都是在此相对路径下的，action也是！！！
+为了统一路径：用jsp中指定basePath:
+对我来说：：记住下面两点足以：：
+1.jsp中的/代表的是站点的跟路径
+2.jsp当前路径为action的路径（是逻辑路径不是物理的，这点切记）
+action中指定方法调用：：用method属性，如method="add"
+url中指定为DMI：：用!指定如user.action!add(经常用。。。。。。。。。。。。)好处，在一个class中可以写多个方法
+使用wildcard使得配置降到最低：：如一个action在jsp中写成StudentADD,则在struts.xml中可以这样配置<action name=Student* >而且里面的*可以用{}来取值：：
+比如*_*测｛1｝就是第一个*,{2}就是第二个*,在method属性里可以用method="{1}"来用，在result的jsp中，可以{1}_{2}.jsp来用，很灵活吧！！！！
+------------------“约定由于配置”--------------------------
+action中的参数传递可以直接使用相同的属性名并提供getset即可（主要是根据方法名来判断是否是可接受的参数）
+1、DM：域模型，把一个实体包装成类，action直接调用类的getset方法就行，在jsp中用class.xx来传参：：比如说一个User类，我们的action可以只有一个User属性，然后但调用User里的name时，struts会帮我们new这个User，然后调用User里的name等等，在jsp中传参数时的表现就是用User.name直接指定到action即可！！！
+2、如果数据不匹配，用DTO把数据倒一把手！！！
+3、MD（model Driven实现ModelDriven接口，getModel(),举个例子getModel到的是User）,用他之后，在jsp中传参数不用加User,name什么的了，直接用name，就行，因为getMode已经把User得到了，而且在action中传参数，也就是传给了model所以可以看成是透明的。！！！（User得自己new出来，implements ModelDriven<User>）
+
+又一个struts 常量：<constant name="struts.i18n.encoding" value="GBK">
+
+注意action中访问不到request,reapond,以及applicationcontext，因此往前台传数据很困难！！！只有this.addFieldError(key,value)(可以对同一个key加多个值，容器会把他们变成数据保存)，等，可以在前台用struts标签来读取，
+
+valuestack和stackcontext就是解决传值的问题：：（简单抵消了resquest等）：：这里面的值用<s:property value="key">来取
+<s:debug></s:debug>//查看valuestack和stackcntext
+
+空间分布：key.value[num]
+
+因为我们经常会用到session，cookie等，但是在action中访问不到这种数据，那怎么办呢（request,session,application）：：：
+js插曲：：onclick="javascript:document.form_name.action='action_name';document.form_name.submit();///动态指定action
+
+取得web元素：：///context是指运行的环境
+方法1：Map req = (Map)ActionContext.getContext.get("request")//struts初始化时会把request放在actionContext里（也就是actioncontext里）
+Map session = ActionContext.getSession()
+Map app = ActionContext.getContext().getApplicaton()
+放值的话，用put,如req.put("key","value")
+在前台jsp这样访问：：<s:property value="#req.key" />,也可以用内置对象拿到：：如request.getAttribute("key");//struts对Map的req进行了处理
+value stack不需要加#但是actioncontext要加#
+方法2：实现requestaware,sessionaware,applicationaware,重写setRequest(Map req),setSession(Map session),setApplication(Map application)//不需要初始化（不需要get），因为struts做了用Spring的方式注入）：：然后用put就行了////方法2很常用
+struts.xml中的include元素：：<include file="xxx.xml">，把另外一个xml当成struts的xml包含进去，主要用于分块，xxx.xml可以struts.xml的格式，可以单独使用
+
+默认的action，找不到就用它，在package里用标签<defalut-action-ref name="xxx">,（可以每一个package有一个默认action）
+
+result的类型：默认为dispatcher，//服务器跳转
+还有：redirect（浏览器的跳转jsp）,
+chain(服务器forward到一个action而不是jsp),）——用<param name="actionName">xxx</param>指定action，用<param name="namespace">xxx</param>指定action所在的包
+redirectAction(客户端跳转到action)
+注意result调转到另一个action的时候，用包名/action来写，同一个包里不用写
+
+global-result：//action返回的字符串没有匹配的话，就去找<global-results><result name="xxx">xxxx.jsp</result></global-results>//放在一个package下，主要是为了有action返回同一个页面的时候，减少配置
+
+注意extends的灵活配置，可以设计一个公有的package，然后大家都继承他，它里面可以定义一些出错返回主页等的信息。
+那个struts-defalut很重要，因为它配置了基本的拦截器等，很复杂，但是不能缺，而且不用改！！
+
+在配置文件中可以用${key}来读valuestack中的内容，注意是在配置文件中！！
+这样有个好处就是可以动态的指定jsp页面，比如我们在action中顶一个一个r，根据不同的结果给r赋值，如x=1,r=x1.jsp;x=2,r=x2.jsp,则在我们的result标签中可用${r}来代替直接写xxx.jsp，减少了配置。（注意在action中设好getset方法）
+action的属性都会放在valuestack中
+
+OGNL（object graph navigation lanuage,用.来访问属性，就像结构体中的访问）表达式：：是在<s:property>标签里的value="xxx"，xxx就是ognl表达式
+
+-------------------Struts-tags-------------找资料学习-----------------------
+
+初始化DM，可以new，也可以保持一个空的构造方法！！！注意要有空的构造方法
+
+ognl表达式的用法：
+访问类的方法：value="com.test.add()";
+访问类的构造方法：value="new com.test(1)";//可就是可以new对象
+访问action中的集合（list,set,map）：
+整个list:value="list_name"(数组和list一样)
+list中某个元素：value="list_name[i]"
+list中某个属性的集合：value="list_name.{属性名字}"//注意是大括号（代表一个集合）
+list中某个属性：value="list_name[i].属性名字"
+
+整个set：value="set_name"
+
+
+整个map:value="map_name"
+map中某个元素：value="map_name.key"
+map中所有的key:value="map_name.keys"
+map中所有的值：value="map_name.values"
+size:value="map_name.size()",可以"list_name.size"
+
+ognl找不到的时候，不给你显示也不报错！！
+ognl过滤：{?#条件}（列出所有符合条件的），{^#条件}（列出符合条件的第一个），{$#条件}（列出符合条件的最后一个）
+[]访问：[]是访问valuestack中的内容如value="[0]"就表示访问valuestack中第一个元素（其实就是我们当前的action的内容，注意是个Map）
+注意这里的0代表的是从第1个元素往下找，如果是1就代表从第2个元素往下找！！！！！记住。。。。。。
+
+china的情况中所chain起来的action都在同一个valuestack
+
+struts_tags:
+1.property:对于value来说，""之间的是ognl表达式（是一个object），如果要把value设置为普通的字符串，需要加''，如value="'test'";如果一个value在值栈中找不到饿哦没人能可以用defalut属性来指定，如<s:property value="admin" defalut="哈哈">,如果找不到admin，就用“哈哈”代替；如果想把value中的字符串解析为html则加上escape=“false”即可，例如：<s:property value="'<hr/>'" escape="false">则在显示的时候，此标签是一个<hr/>元素(一条横线)
+
+2.set:设置一个key(var标识)-value（ongl）,默认的范围为action（会设置到ActionContext里设置，同时在key为request里面也有），可以设置scope为page,session,application等，相对应的就是放在了ActionContext中的session（key）放置，application（key）中设置。jsp中我们可以用session，application，request等内置对象来取哦（在ActionContext中有key的值为session,application）（struts帮忙对应起来了）
+
+3.bean:和jsp中的useBean一样：两个属性name指定new的类，var给类起个名字，标签里面，可以用<s:param name="class的属性名" value="属性值（注意ognl）">来设置属性值，然后把这个对象放到ActionContext里，key就是var的值
+
+%{xxx}，把xxx强制转化为ognl表达式为什么要他呢，因为在<s:include>标签中，他的value是一个String,而在其他里面value是ognl
+
+控制标签，重要的test属性；如<s:if test="xxx<0">xxxx</s:if>////test里面是条件
+还有<s:elseif test=""></s:elseif>还有else
+
+<s:iterator value="" var="" status="">//var（var都放到ActionContext要用#访问哦）可以定义一个接受每次迭代的值，然后可以做相应的处理
+<s:property value="#x.tpUpperCase()"> xx//每一次迭代会输出iterator便签里面的所有值，status指定了每次迭代中的状态信息，比如总数（count）,索引（index）,是不是偶数（even）等等
+</s:iterator>
+ 
+DB语句：
+
+
+struts的声明式异常处理：我们可以把异常往外抛（捕获异常之后可以用throw(e);来把异常交给stuts），然后交给struts处理，struts可以通过：在action中添加：：<exception-mapping result="result_name" exception="java.sql.SQLException">
+<result name="resutl_name">xxx.jsp</result>
+如果执行这个action中发生了SQLException的异常，则会返回xxx.jsp
+
+也可以在父包里配一个<global-exception-mapping>如：
+<global-exception-mapping>
+<exception-mapping result="xxx" exception="java.sql.SQLException">
+</global-exception-mapping>
+如果这样配的话，当子报里发生异常时，在子报里找不到相应的acion来处理的话，就到父包里去找，找到了这个东西，然后看看异常是SQLException，看到他的result是xxx,然后就去子报里找result="xxx"对应的jsp
+声明式的异常处理struts中使用拦截器来实现！！！
+
+struts中的拦截器是环绕式的！！！！
+
+读取属性文件：：：
+ResourseBundle res = ResourseBundle.getBundle("properties_file_name");
+value = res.getString("property_name");
+
+国际化问题记住几点：1.用在app级别；2.在struts.xml配置一下资源文件的开头部分（<constant name="struts.custom.i18n.resourses" value="app_name">）3.在jsp页面引用的时候用getText('key')4.国际化资源文件命名规范：app_name_en_US.properties,app_name_zh_CN.properties,4，国际化的时候，由浏览器自动选择相应的资源文件来显示；5.在资源文件里可以用占位符，从0开始，如welcome=welcome:{0},我们可以在jsp中指定占位符内容，用<s:text name="xx"><s:param value="username">xxxxxx</s:param></s:text>中的param标签实现，只要把<s:param>挨着排的往里传就是了
+
+动态语言切换，在传输过程中添加request_locate=en_US等即可，如<a href="xx/xxaction?request_locate=en_US">

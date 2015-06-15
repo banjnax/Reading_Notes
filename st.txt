@@ -1,0 +1,30 @@
+﻿    我们的action接受参数使用get和set方法结合DM（域模型就是一个Model（MVC的M））或DTO（数据传输对象）来接受。DM中要定义一个空的构造方法（当有多个构造方法时）
+    struts2标签库（<%@taglib uri="/struts-tags" prefix="s" %>）是为了更好的取得值栈或stack context里的值(<s：property value="名字">)，很有用。
+要去parameter（在stack context里的）里的值要加#号如<s:property value="#value">
+值栈的构造，首先是一个大的key-value，然后通过key我们可以找到value，但是通常我们用到的value他本身是个MAP，因此我们还要进行往下取值（用.向下），而
+这个MAP里的value呢，一般来书是一个字符串数组，因此，通常我们取值会有这样的形式：<s:property value="key1.key2[i]">
+对于strut.xml中的标签，我们可以参考他默认继承的那个.xml，那个.xml不能删掉，也不要修改,我们可以利用继承来减少便签的编写。利用include标签我们可以把一个.xml导入到我们的配置文件，好处是实现分工合作。
+一个request拥有一个值栈，这个值栈在服务器端的跳转是设为action共享，我们可以用${名字}来获得值栈中的值从而进行数据的传递。
+IoC:inverse of control，反向控制，又叫DI（动态注入）是指在写action的时候，我们可以不new成员变量，我们可以实现某些接口并重写其中的方法就好（方法是很简单的赋值，而且一般只有一个），让他们来new对象，然后我们就完成了不new对象而直接使用的效果，这个很常用。//一般用在web元素的访问上，如request，session，application等（MAP类型）
+
+
+
+ （用于struts标签）ognl（object graph navigater lanuage:对象图导航语言，就像结构体的访问用.因此用法就像java的自动生成来用就OK啦，比如可以直接访问对象的方法哦）表达式：就是value="ongl表达式"，ongl表达式中，只有传了值（某个对象的成员就行）才能new对象。访问静态方法和属性时，用@类名@方法或变量（特殊Math类的静态方法访问，@@方法）；可以直接new对象；访问list与数组一样，如s[1]等但是set没顺序，写set[1]无意义Map通过m.key//ongl用在action中的值栈中对象的访问；投影（过滤），就是找到符合条件的元素，用.{?#|^#|$#}.如users.{?#this.age==1}，就表示显示users中age等于1的元素，{^#age>1}就表示拿到第一个大于1的元素，同样$#age>1就表示拿到大于1的最后一个元素，判断如users.{?#this.age==1}==null，就是判断是否为null
+ 
+ 		struts标签：//在struts中便签中的value值默认为ognl表达式，如果想表示字符串要加''
+通用标签：
+控制标签：
+UI标签：
+AJAX标签：
+
+
+通用标签：
+set标签默认在action context里因此要引用加#,在标签里只用var,scope,value
+不设置scope，默认是action context
+bean标签用来生成一个对象，可调用其内置标签param便签赋值。只能在bean标签内拿出来，要想在其他地方下拿到，就要设置为 var
+对于value是string类型的如果要变成ognl怎在value中这样用,value="%{名字}"强制解析为ognl表达式
+
+控制标签：就是一些构成控制语句的标签，如:<s:if test="">0 ></s:if>;<s:elseif test=""...></s:elseif>;<s:else...></s:else>;在这里set标签就好用了，可以
+遍历用iterator标签，可以一个一个的拿出来<s:iterator value="'a','b'" var="x">每次拿出来的值赋给x,遍历过程中的信息可以用status记录，在便签里加入staus="y",把状态赋给y,状态里表示遍历的第几个？，是第一个？，。。。对于map元素的遍历，value中要加#，key,value用:隔开
+
+el=express language表达式语言，语法结构：${expression}

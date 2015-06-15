@@ -1,0 +1,930 @@
+﻿ptyhon中的名字不论是自变量还是函数名都是一个指向！！！！
+
+python函数可以返回多个值，用多个变量来接受(实际上还是返回一个值tuple,然后按位来赋值)，比如x,y=test(12);
+函数定义def fun_name(params):语句。。。return
+参数的默认值如power(x,n=2)；好处是我们经常会用到平方运算，所以可以直接写power(5)=5*5=25，而不必写第二个参数，因为第二个参数默认为2；要注意：：必选参数在前，默认参数在后。
+顺序问题：传参数时，可以指定参数名而不按顺序来，比如有一个函数enroll(name,gender,age=6,city='beijing');我们可以这样调用enroll(libin,nan,city='tianjin')
+注意：：默认参数必须指向不变对象！！！如果只想list这样的可变对象，时造成list类型的默认参数累加
+可变参函数用*如add_sum(*numbers)，我们可以这样调用add_sum(1,2,3);numbers变为一个tuple，如果已经有了一个list或者tuple我们也可以加*传进去，如l1=[1,2,3],add_sum(*l1)
+关键字参数：**numers两个星传进去的是一个dict,
+在函数调用的时候，Python解释器自动按照参数位置和参数名把对应的参数传进去。
+所以，对于任意函数，都可以通过类似func(*args, **kw)的形式调用它，无论它的参数是如何定义的。
+针对尾递归优化的语言可以通过尾递归防止栈溢出。尾递归事实上和循环是等价的，没有循环语句的编程语言只能通过尾递归实现循环。
+尾递归是指，在函数返回的时候，调用自身本身，并且，return语句不能包含表达式。这样，编译器或者解释器就可以把尾递归做优化，使递归本身无论调用多少次，都只占用一个栈帧，不会出现栈溢出的情况。
+一般的递归是递归（深入）到临界点然后返回来计算，因此必需保存到达临界点之前的东西，而尾递归不需要递归到临界点而是从临界点直接上升到给定值所以不需要记录回去的路径。因此栈深为1了，举个例子：计算n的阶乘，如果用简单递归的话，就是factorial(n){if(n==1||n==0)return 1;else return n*factorial(n-1)};要用尾递归的话：
+def fact(n):
+    return fact_iter(1, 1, n)
+
+def fact_iter(product, count, max):
+    if count > max:
+        return product
+    return fact_iter(product * count, count + 1, max)
+
+类似matlab的Slice切片：如l1[1:2]//从1开始取到2但不包括2所以l1[1:2]=l1[1],如果从0开始0可省略，如l1[:4],
+又如l1[a:b:n]，从a开始取到b，每隔n个取一个l1[:]表示整个l1
+
+当我们使用for循环时，只要作用于一个可迭代对象，for循环就可以正常运行，而我们不太关心该对象究竟是list还是其他数据类型。
+
+默认情况下，dict迭代的是key。如果要迭代value，可以用for value in d.itervalues()，如果要同时迭代key和value，可以用for k, v in d.iteritems()。
+
+那么，如何判断一个对象是可迭代对象呢？方法是通过collections模块的Iterable类型判断：
+
+>>> from collections import Iterable
+>>> isinstance('abc', Iterable) # str是否可迭代
+True
+>>> isinstance([1,2,3], Iterable) # list是否可迭代
+True
+>>> isinstance(123, Iterable) # 整数是否可迭代
+False
+
+Python内置的enumerate函数可以把一个list变成索引-元素对，这样就可以在for循环中同时迭代索引和元素本身：
+
+>>> for i, value in enumerate(['A', 'B', 'C']):
+...     print i, value
+...
+0 A
+1 B
+2 C
+
+任何可迭代对象都可以作用于for循环，包括我们自定义的数据类型，只要符合迭代条件，就可以使用for循环。
+
+要生成list [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]可以用range(1, 11)：
+
+列表生成式则可以用一行语句代替循环生成上面的list：
+
+>>> [x * x for x in range(1, 11)]
+[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
+写列表生成式时，把要生成的元素x * x放到前面，后面跟for循环，就可以把list创建出来，十分有用，多写几次，很快就可以熟悉这种语法。
+
+for循环后面还可以加上if判断，这样我们就可以筛选出仅偶数的平方：
+
+>>> [x * x for x in range(1, 11) if x % 2 == 0]
+[4, 16, 36, 64, 100]
+还可以使用两层循环，可以生成全排列：
+
+>>> [m + n for m in 'ABC' for n in 'XYZ']
+['AX', 'AY', 'AZ', 'BX', 'BY', 'BZ', 'CX', 'CY', 'CZ']
+三层和三层以上的循环就很少用到了。
+
+使用内建的isinstance函数可以判断一个变量是不是字符串：
+
+>>> x = 'abc'
+>>> y = 123
+>>> isinstance(x, str)
+True
+
+如果列表元素可以按照某种算法推算出来，那我们是否可以在循环的过程中不断推算出后续的元素呢？这样就不必创建完整的list，从而节省大量的空间。在Python中，这种一边循环一边计算的机制，称为生成器（Generator）。
+
+要创建一个generator，有很多种方法。第一种方法很简单，只要把一个列表生成式的[]改成()，就创建了一个generator：如果要一个一个打印出来，可以通过generator的next()方法：
+generator保存的是算法，每次调用next()，就计算出下一个元素的值，直到计算到最后一个元素，没有更多的元素时，抛出StopIteration的错误。
+
+如果一个函数定义中包含yield关键字，那么这个函数就不再是一个普通函数，而是一个generator：
+
+generator，在执行过程中，遇到yield就中断（就好像停在那儿一样，然后由函数保留停留点（这是和迭代器和函数不一样的地方）），下次又继续在停留在后开始执行（就好像一个很长的过程被分成了好几个时间段一样），比如这样的例子：
+>>> def odd():
+...     print 'step 1'
+...     yield 1
+...     print 'step 2'
+...     yield 3
+...     print 'step 3'
+...     yield 5
+...
+>>> o = odd()
+>>> o.next()
+step 1
+1
+>>> o.next()
+step 2
+3
+>>> o.next()
+step 3
+5
+>>> o.next()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+StopIteration
+可以看到，odd不是普通函数，而是generator，在执行过程中，遇到yield就中断，下次又继续执行。执行3次yield后，已经没有yield可以执行了，所以，第4次调用next()就报错。
+
+函数本身也可以赋值给变量，即：变量可以指向函数。
+
+如果一个变量指向了一个函数，那么，可以通过该变量来调用这个函数。
+
+既然变量可以指向函数，函数的参数能接收变量，那么一个函数就可以接收另一个函数作为参数，这种函数就称之为高阶函数。
+
+一个最简单的高阶函数：
+
+def add(x, y, f):
+    return f(x) + f(y)
+
+
+map()函数接收两个参数，一个是函数，一个是序列，map将传入的函数依次作用到序列的每个元素，并把结果作为新的list返回。
+
+reduce把一个函数作用在一个序列[x1, x2, x3...]上，这个函数必须接收两个参数，reduce把结果继续和序列的下一个元素做累积计算，其效果就是：
+reduce(f, [x1, x2, x3, x4]) = f(f(f(x1, x2), x3), x4)
+比方说对一个序列求和，就可以用reduce实现：
+
+>>> def add(x, y):
+...     return x + y
+...
+>>> reduce(add, [1, 3, 5, 7, 9])
+25
+
+和map()类似，filter()也接收一个函数和一个序列。和map()不同的时，filter()把传入的函数依次作用于每个元素，然后根据返回值是True还是False决定保留还是丢弃该元素。
+
+Python内置的sorted()函数就可以对list进行排序：
+
+>>> sorted([36, 5, 12, 9, 21])
+[5, 9, 12, 21, 36]
+此外，sorted()函数也是一个高阶函数，它还可以接收一个比较函数来实现自定义的排序。比如，如果要倒序排序，我们就可以自定义一个reversed_cmp函数：
+
+def reversed_cmp(x, y):
+    if x > y:
+        return -1
+    if x < y:
+        return 1
+    return 0
+
+高阶函数除了可以接受函数作为参数外，还可以把函数作为结果值返回。
+
+我们来实现一个可变参数的求和。通常情况下，求和的函数是这样定义的：
+
+def calc_sum(*args):
+    ax = 0
+    for n in args:
+        ax = ax + n
+    return ax
+但是，如果不需要立刻求和，而是在后面的代码中，根据需要再计算怎么办？可以不返回求和的结果，而是返回求和的函数！
+
+def lazy_sum(*args):
+    def sum():
+        ax = 0
+        for n in args:
+            ax = ax + n
+        return ax
+    return sum
+当我们调用lazy_sum()时，返回的并不是求和结果，而是求和函数：
+
+>>> f = lazy_sum(1, 3, 5, 7, 9)
+>>> f
+<function sum at 0x10452f668>
+调用函数f时，才真正计算求和的结果：
+
+>>> f()
+25
+在这个例子中，我们在函数lazy_sum中又定义了函数sum，并且，内部函数sum可以引用外部函数lazy_sum的参数和局部变量，当lazy_sum返回函数sum时，相关参数和变量都保存在返回的函数中，这种称为“闭包（Closure）”的程序结构拥有极大的威力。
+闭包会为我们产生一个函数工厂使得程序更灵活。
+def make_adder(addend):
+    def adder(augend):
+        return augend + addend
+    return adder
+
+p = make_adder(23)
+q = make_adder(44)
+
+print p(100)
+print q(100)
+运行结果:
+
+123
+144
+分析一下:
+
+我们发现,make_adder是一个函数,包括一个参数addend,比较特殊的地方是这个函数里面又定义了一个新函数,这个新函数里面的一个变量正好是外部make_adder的参数.也就是说,外部传递过来的addend参数已经和adder函数绑定到一起了,形成了一个新函数,我们可以把addend看做新函数的一个配置信息,配置信息不同,函数的功能就不一样了,也就是能得到定制之后的函数.
+
+再看看运行结果,我们发现,虽然p和q都是make_adder生成的,但是因为配置参数不同,后面再执行相同参数的函数后得到了不同的结果.这就是闭包.
+
+
+对函数(参数,返回值等)进行加工处理,生成一个功能增强版的一个函数。再看看闭包的概念,这个增强版的函数不就是我们配置之后的函数吗?区别在于,装饰器的参数是一个函数或类,专门对类或函数进行加工处理。//装饰器就是一个AOP的感念
+
+def makebold(fn):
+    def wrapped():
+        return "<b>" + fn() + "</b>"
+    return wrapped
+
+def makeitalic(fn):
+    def wrapped():
+        return "<i>" + fn() + "</i>"
+    return wrapped
+
+@makebold
+@makeitalic
+def hello():
+    return "hello world"
+
+print hello() 
+执行结果
+
+<b><i>hello world</i></b>
+
+map(lambda x: x * x, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+关键字lambda表示匿名函数，冒号前面的x表示函数参数。
+匿名函数有个限制，就是只能有一个表达式，不用写return，返回值就是该表达式的结果。
+用匿名函数有个好处，因为函数没有名字，不必担心函数名冲突。此外，匿名函数也是一个函数对象，也可以把匿名函数赋值给一个变量，再利用变量来调用该函数：
+
+>>> f = lambda x: x * x
+也可以把匿名函数作为返回值返回，比如：
+
+def build(x, y):
+    return lambda: x * x + y * y
+//lambda表达式主要在匿名函数的赋值上
+
+
+假设我们要增强now()函数的功能，比如，在函数调用前后自动打印日志，但又不希望修改now()函数的定义，这种在代码运行期间动态增加功能的方式，称之为“装饰器”（Decorator）。
+
+本质上，decorator就是一个返回函数的高阶函数。所以，我们要定义一个能打印日志的decorator，可以定义如下：
+
+def log(func):
+    def wrapper(*args, **kw):
+        print 'call %s():' % func.__name__
+        return func(*args, **kw)
+    return wrapper
+观察上面的log，因为它是一个decorator，所以接受一个函数作为参数，并返回一个函数。我们要借助Python的@语法，把decorator置于函数的定义处：
+
+
+@log
+def now():
+    print '2013-12-25'
+
+
+注意理解一下参数的传递问题：调用log返回了一个wrapper，这个wrapper包含了一个参数列表(*args, **kw),这个列表也是func传入的参数列表，因为我们调用也就是把带参数的函数传给了log（这个例子里now没有传入参数）。
+
+调用now()函数，不仅会运行now()函数本身，还会在运行now()函数前打印一行日志：
+
+>>> now()
+call now():
+2013-12-25
+把@log放到now()函数的定义处，相当于执行了语句：
+
+now = log(now)
+
+当函数的参数个数太多，需要简化时，使用functools.partial可以创建一个新的函数，这个新函数可以固定住原函数的部分参数，从而在调用时更简单。
+
+请注意，每一个包目录下面都会有一个__init__.py的文件，这个文件是必须存在的，否则，Python就把这个目录当成普通目录，而不是一个包。__init__.py可以是空文件，也可以有Python代码，因为__init__.py本身就是一个模块，而它的模块名就是mycompany。
+
+ import cStringIO as StringIO//模块别名
+
+
+类似__xxx__这样的变量是特殊变量，可以被直接引用，但是有特殊用途，比如上面的__author__，__name__就是特殊变量，hello模块定义的文档注释也可以用特殊变量__doc__访问，我们自己的变量一般不要用这种变量名；
+
+类似_xxx和__xxx这样的函数或变量就是非公开的（private），不应该被直接引用，比如_abc，__abc等；
+外部不需要引用的函数全部定义成private，只有外部需要引用的函数才定义为public。不用关心内部的private函数细节，这是一种非常有用的代码封装和抽象的方法
+
+
+
+如果你正在使用Windows，请首先从这个地址下载ez_setup.py：运行ez_setup.py进行安装，然后把easy_install设置系统path变量里
+一般来说，第三方库都会在Python官方的pypi.python.org网站注册，要安装一个第三方库，必须先知道该库的名称，可以在官网或者pypi上搜索，比如Python Imaging Library的名称叫PIL，因此，安装Python Imaging Library的命令就是：
+
+easy_install PIL
+其他常用的第三方库还有MySQL的驱动：MySQL-python，用于科学计算的NumPy库：numpy，用于生成文本的模板工具Jinja2，等等。
+
+设置环境变量PYTHONPATH，该环境变量的内容会被自动添加到模块搜索路径中
+
+Python提供了__future__模块，把下一个新版本的特性导入到当前版本，于是我们就可以在当前版本中测试一些新版本的特性。
+
+而在Python 3.x中，所有的除法都是精确除法，地板除用//表示：
+
+class Student(object):
+
+    def __init__(self, name, score):
+        self.name = name
+        self.score = score
+
+    def print_score(self):
+        print '%s: %s' % (self.name, self.score)//注意__init__是要写的，而且所有的参数被封装为self
+
+class后面紧接着是类名，即Student，类名通常是大写开头的单词，紧接着是(object)，表示该类是从哪个类继承下来的，继承的概念我们后面再讲，通常，如果没有合适的继承类，就使用object类，这是所有类最终都会继承的类。
+__init__方法的第一个参数永远是self，表示创建的实例本身，因此，在__init__方法内部，就可以把各种属性绑定到self，因为self就指向创建的实例本身。
+
+有了__init__方法，在创建实例的时候，就不能传入空的参数了，必须传入与__init__方法匹配的参数，但self不需要传，Python解释器自己会把实
+定义一个方法，除了第一个参数是self外，其他和普通函数一样例变量传进去
+如果要让内部属性不被外部访问，可以把属性的名称前加上两个下划线__，在Python中，实例的变量名如果以__开头，就变成了一个私有变量（private），只有内部可以访问，外部不能访问，所以，我们把Student类改一改：
+
+class Student(object):
+
+    def __init__(self, name, score):
+        self.__name = name
+        self.__score = score
+def print_score(self):
+        print '%s: %s' % (self.__name, self.__score)
+改完后，对于外部代码来说，没什么变动，但是已经无法从外部访问实例变量.__name和实例变量.__score了
+双下划线开头的实例变量是不是一定不能从外部访问呢？其实也不是。不能直接访问__name是因为Python解释器对外把__name变量改成了_Student__name，所以，仍然可以通过_Student__name来访问__name变量：
+
+我们来判断对象类型，使用type()函数
+果要获得一个对象的所有属性和方法，可以使用dir()函数，它返回一个包含字符串的list
+
+正常情况下，当我们定义了一个class，创建了一个class的实例后，我们可以给该实例绑定任何属性和方法，这就是动态语言的灵活性。
+
+先定义class：
+
+>>> class Student(object):
+...     pass
+...
+然后，尝试给实例绑定一个属性：
+
+>>> s = Student()
+>>> s.name = 'Michael' # 动态给实例绑定一个属性
+>>> print s.name
+Michael
+还可以尝试给实例绑定一个方法：
+
+>>> def set_age(self, age): # 定义一个函数作为实例方法
+...     self.age = age
+...
+>>> from types import MethodType
+>>> s.set_age = MethodType(set_age, s, Student) # 给实例绑定一个方法
+>>> s.set_age(25) # 调用实例方法
+>>> s.age # 测试结果
+25
+为了给所有实例都绑定方法，可以给class绑定方法：//在python3.x中，第三个参数Student不需要了
+
+通常情况下，上面的set_score方法可以直接定义在class中，但动态绑定允许我们在程序运行的过程中动态给class加上功能，这在静态语言中很难实现。
+
+但是，如果我们想要限制class的属性怎么办？比如，只允许对Student实例添加name和age属性。
+
+为了达到限制的目的，Python允许在定义class的时候，定义一个特殊的__slots__变量，来限制该class能添加的属性：
+
+>>> class Student(object):
+...     __slots__ = ('name', 'age') # 用tuple定义允许绑定的属性名称，slots是插槽的意思，说明可供插入的插头只有name和age两个，注意slots不能限制方法的添加
+
+使用__slots__要注意，__slots__定义的属性仅对当前类起作用，对继承的子类是不起作用的
+
+除非在子类中也定义__slots__，这样，子类允许定义的属性就是自身的__slots__加上父类的__slots__
+
+//@property装饰器是把方法变成了属性，然后对属性的操作相当于调用了get和set方法，此装饰器的好处是可以在属性操作是自动的在方法内部进行属性合法性检查而不需要调用一个检查函数
+@property的实现比较复杂，我们先考察如何使用。把一个getter方法变成属性，只需要加上@property就可以了，此时，@property本身又创建了另一个装饰器@score.setter，负责把一个setter方法变成属性赋值，于是，我们就拥有一个可控的属性操作：
+
+>>> s = Student()
+>>> s.score = 60 # OK，实际转化为s.set_score(60)
+>>> s.score # OK，实际转化为s.get_score()
+60
+>>> s.score = 9999
+Traceback (most recent call last):
+  ...
+ValueError: score must between 0 ~ 100!
+
+多重继承对于需要Runnable功能的动物，就多继承一个Runnable，例如Dog：
+
+class Dog(Mammal, Runnable):
+    pass
+
+Python自带的很多库也使用了Mixin。举个例子，Python自带了TCPServer和UDPServer这两类网络服务，而要同时服务多个用户就必须使用多进程或多线程模型，这两种模型由ForkingMixin和ThreadingMixin提供。通过组合，我们就可以创造出合适的服务来。
+
+def __str__(self):
+...         return 'Student object (name: %s)' % self.name
+这个特殊方法让我们可以定义类的名字
+
+直接显示变量调用的不是__str__()，而是__repr__()，两者的区别是__str__()返回用户看到的字符串，而__repr__()返回程序开发者看到的字符串，也就是说，__repr__()是为调试服务的。
+通常令__repr__ = __str__即可
+
+type()函数可以查看一个类型或变量的类型，Hello是一个class，它的类型就是type，而h是一个实例，它的类型就是class Hello。
+
+我们说class的定义是运行时动态创建的，而创建class的方法就是使用type()函数。
+
+type()函数既可以返回一个对象的类型，又可以创建出新的类型，比如，我们可以通过type()函数创建出Hello类，而无需通过class Hello(object)...的定义：
+
+要创建一个class对象，type()函数依次传入3个参数：
+
+class的名称；
+继承的父类集合，注意Python支持多重继承，如果只有一个父类，别忘了tuple的单元素写法；
+class的方法名称与函数绑定，这里我们把函数fn绑定到方法名hello上。
+通过type()函数创建的类和直接写class是完全一样的，因为Python解释器遇到class定义时，仅仅是扫描一下class定义的语法，然后调用type()函数创建出class。
+
+正常情况下，我们都用class Xxx...来定义类，但是，type()函数也允许我们动态创建出类来，也就是说，动态语言本身支持运行期动态创建类，这和静态语言有非常大的不同，要在静态语言运行期创建类，必须构造源代码字符串再调用编译器，或者借助一些工具生成字节码实现，本质上都是动态编译，会非常复杂。
+//....................................................................................
+# metaclass是创建类，所以必须从`type`类型派生：
+class ListMetaclass(type):
+    def __new__(cls, name, bases, attrs):
+        attrs['add'] = lambda self, value: self.append(value)
+        return type.__new__(cls, name, bases, attrs)
+
+class MyList(list):
+    __metaclass__ = ListMetaclass # 指示使用ListMetaclass来定制类
+当我们写下__metaclass__ = ListMetaclass语句时，魔术就生效了，它指示Python解释器在创建MyList时，要通过ListMetaclass.__new__()来创建，在此，我们可以修改类的定义，比如，加上新的方法，然后，返回修改后的定义。
+
+__new__()方法接收到的参数依次是：
+
+当前准备创建的类的对象；
+
+类的名字；
+
+类继承的父类集合；
+
+类的方法集合。
+//.....................................................................................
+因此对于自动生成相似的类来说很有用
+
+try:
+except ...Error:
+except ...Error:
+else:
+
+finnaly
+因为错误是class，捕获一个错误就是捕获到该class的一个实例。因此，错误并不是凭空产生的，而是有意创建并抛出的。Python的内置函数会抛出很多类型的错误，我们自己编写的函数也可以抛出错误。
+
+如果要抛出错误，首先根据需要，可以定义一个错误的class，选择好继承关系，然后，用raise语句抛出一个错误的实例：
+raise ...Error
+
+由于当前函数不知道应该怎么处理该错误，所以，最恰当的方式是继续往上抛，让顶层调用者去处理。
+try:
+        return foo(s) * 2
+    except StandardError, e:
+        print 'Error!'
+        raise//不知道这么处理，往上面抛
+
+凡是用print来辅助查看的地方，都可以用断言（assert）来替代
+程序中如果到处充斥着assert，和print相比也好不到哪去。不过，启动Python解释器时可以用-O参数来关闭assert：
+
+$ python -O err.py
+把print替换为logging是第3种方式，和assert比，logging不会抛出错误，而且可以输出到文件：
+这就是logging的好处，它允许你指定记录信息的级别，有debug，info，warning，error等几个级别，当我们指定level=INFO时，logging.debug就不起作用了。同理，指定level=WARNING后，debug和info就不起作用了。这样一来，你可以放心地输出不同级别的信息，也不用删除，最后统一控制输出哪个级别的信息。
+import logging
+logging.basicConfig(level=logging.INFO)
+logging的另一个好处是通过简单的配置，一条语句可以同时输出到不同的地方，比如console和文件。
+第4种方式是启动Python的调试器pdb，让程序以单步方式运行，可以随时查看运行状态。
+python -m pdb err.py
+输入命令l来查看代码
+输入命令n可以单步执行代码
+任何时候都可以输入命令p+变量名来查看变量
+输入命令q结束调试，退出程序
+
+这个方法也是用pdb，但是不需要单步执行，我们只需要import pdb，然后，在可能出错的地方放一个pdb.set_trace()，就可以设置一个断点：命令c继续运行：
+如果要比较爽地设置断点、单步执行，就需要一个支持调试功能的IDE。目前比较好的Python IDE有PyCharm
+
+
+Python引入了with语句来自动帮我们调用close()方法：
+
+with open('/path/to/file', 'r') as f:
+    print f.read()
+这和前面的try ... finally是一样的，但是代码更佳简洁，并且不必调用f.close()方法。
+
+调用read()会一次性读取文件的全部内容，如果文件有10G，内存就爆了，所以，要保险起见，可以反复调用read(size)方法，每次最多读取size个字节的内容。另外，调用readline()可以每次读取一行内容，调用readlines()一次读取所有内容并按行返回list。因此，要根据需要决定怎么调用。
+
+如果文件很小，read()一次性读取最方便；如果不能确定文件大小，反复调用read(size)比较保险；如果是配置文件，调用readlines()最方便：
+
+像open()函数返回的这种有个read()方法的对象，在Python中统称为file-like Object。除了file外，还可以是内存的字节流，网络流，自定义流等等。file-like Object不要求从特定类继承，只要写个read()方法就行。
+
+StringIO就是在内存中创建的file-like Object，常用作临时缓冲。
+
+前面讲的默认都是读取文本文件，并且是ASCII编码的文本文件。要读取二进制文件，比如图片、视频等等，用'rb'模式打开文件即可：
+
+Python还提供了一个codecs模块帮我们在读文件时自动转换编码，直接读出unicode：
+
+import codecs
+with codecs.open('/Users/michael/gbk.txt', 'r', 'gbk') as f:
+    f.read() # u'\u6d4b\u8bd5'
+
+写文件和读文件是一样的，唯一区别是调用open()函数时，传入标识符'w'或者'wb'表示写文本文件或写二进制文件：
+f.write('Hello, world!')
+
+在Python中，文件读写是通过open()函数打开的文件对象完成的。使用with语句操作文件IO是个好习惯。
+
+Python内置的os模块也可以直接调用操作系统提供的接口函数。
+import os
+>>> os.name # 操作系统名字
+'posix'
+要获取详细的系统信息，可以调用uname()函数
+注意uname()函数在Windows上不提供，也就是说，os模块的某些函数是跟操作系统相关的
+
+在操作系统中定义的环境变量，全部保存在os.environ这个dict中，可以直接查看
+
+要获取某个环境变量的值，可以调用os.getenv()函数：
+
+操作文件和目录的函数一部分放在os模块中，一部分放在os.path模块中，这一点要注意一下。查看、创建和删除目录可以这么调用：
+
+# 查看当前目录的绝对路径:
+>>> os.path.abspath('.')
+'/Users/michael'
+# 在某个目录下创建一个新目录，
+# 首先把新目录的完整路径表示出来:
+>>> os.path.join('/Users/michael', 'testdir')
+'/Users/michael/testdir'
+# 然后创建一个目录:
+>>> os.mkdir('/Users/michael/testdir')
+# 删掉一个目录:
+>>> os.rmdir('/Users/michael/testdir')
+把两个路径合成一个时，不要直接拼字符串，而要通过os.path.join()函数，这样可以正确处理不同操作系统的路径分隔符。在Linux/Unix/Mac下，os.path.join()返回这样的字符串：
+
+part-1/part-2
+而Windows下会返回这样的字符串：
+
+part-1\part-2
+同样的道理，要拆分路径时，也不要直接去拆字符串，而要通过os.path.split()函数，这样可以把一个路径拆分为两部分，后一部分总是最后级别的目录或文件名：
+
+>>> os.path.split('/Users/michael/testdir/file.txt')
+('/Users/michael/testdir', 'file.txt')
+os.path.splitext()可以直接让你得到文件扩展名，很多时候非常方便：
+
+>>> os.path.splitext('/path/to/file.txt')
+('/path/to/file', '.txt')
+这些合并、拆分路径的函数并不要求目录和文件要真实存在，它们只对字符串进行操作。
+
+文件操作使用下面的函数。假定当前目录下有一个test.txt文件：
+
+# 对文件重命名:
+>>> os.rename('test.txt', 'test.py')
+# 删掉文件:
+>>> os.remove('test.py')
+但是复制文件的函数居然在os模块中不存在！原因是复制文件并非由操作系统提供的系统调用。理论上讲，我们通过上一节的读写文件可以完成文件复制，只不过要多写很多代码。
+
+幸运的是shutil模块提供了copyfile()的函数，你还可以在shutil模块中找到很多实用函数，它们可以看做是os模块的补充。
+
+最后看看如何利用Python的特性来过滤文件。比如我们要列出当前目录下的所有目录，只需要一行代码：
+
+>>> [x for x in os.listdir('.') if os.path.isdir(x)]
+['.lein', '.local', '.m2', '.npm', '.ssh', '.Trash', '.vim', 'Adlm', 'Applications', 'Desktop', ...]
+要列出所有的.py文件，也只需一行代码：
+
+>>> [x for x in os.listdir('.') if os.path.isfile(x) and os.path.splitext(x)[1]=='.py']
+['apis.py', 'config.py', 'models.py', 'pymonitor.py', 'test_db.py', 'urls.py', 'wsgiapp.py']
+是不是非常简洁？
+
+我们把变量从内存中变成可存储或传输的过程称之为序列化，在Python中叫pickling
+
+反过来，把变量内容从序列化的对象重新读到内存里称之为反序列化，即unpickling。
+
+Python提供两个模块来实现序列化：cPickle和pickle。这两个模块功能是一样的，区别在于cPickle是C语言写的，速度快，pickle是纯Python写的，速度慢，跟cStringIO和StringIO一个道理。用的时候，先尝试导入cPickle，如果失败，再导入pickle：
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
+pickle.dumps()方法把任意对象序列化成一个str，然后，就可以把这个str写入文件。或者用另一个方法pickle.dump()直接把对象序列化后写入一个file-like Object：
+
+>>> f = open('dump.txt', 'wb')
+>>> pickle.dump(d, f)
+>>> f.close()
+看看写入的dump.txt文件，一堆乱七八糟的内容，这些都是Python保存的对象内部信息。
+
+当我们要把对象从磁盘读到内存时，可以先把内容读到一个str，然后用pickle.loads()方法反序列化出对象，也可以直接用pickle.load()方法从一个file-like Object中直接反序列化出对象。我们打开另一个Python命令行来反序列化刚才保存的对象：
+
+>>> f = open('dump.txt', 'rb')
+>>> d = pickle.load(f)
+>>> f.close()
+>>> d
+{'age': 20, 'score': 88, 'name': 'Bob'}
+变量的内容又回来了！
+//在文件中存储了多个对象，需要一个一个的load出来（按顺序）
+如果我们要在不同的编程语言之间传递对象，就必须把对象序列化为标准格式，比如XML，但更好的方法是序列化为JSON，因为JSON表示出来就是一个字符串，可以被所有语言读取，也可以方便地存储到磁盘或者通过网络传输。JSON不仅是标准格式，并且比XML更快，而且可以直接在Web页面中读取，非常方便。
+
+Python内置的json模块提供了非常完善的Python对象到JSON格式的转换。我们先看看如何把Python对象变成一个
+
+Python语言特定的序列化模块是pickle，但如果要把序列化搞得更通用、更符合Web标准，就可以使用json模块。
+
+json模块的dumps()和loads()函数是定义得非常好的接口的典范。当我们使用时，只需要传入一个必须的参数。但是，当默认的序列化或反序列机制不满足我们的要求时，我们又可以传入更多的参数来定制序列化或反序列化的规则，既做到了接口简单易用，又做到了充分的扩展性和灵活性。
+
+Python的os模块封装了常见的系统调用，其中就包括fork，可以在Python程序中轻松创建子进程
+
+由于Python是跨平台的，自然也应该提供一个跨平台的多进程支持。multiprocessing模块就是跨平台版本的多进程模块。
+
+创建子进程时，只需要传入一个执行函数和函数的参数，创建一个Process实例，用start()方法启动，这样创建进程比fork()还要简单。
+p = Process(target=run_proc, args=('test',))
+p.start()
+p.join()
+p.close()
+
+join()方法可以等待子进程结束后再继续往下运行，通常用于进程间的同步。
+
+如果要启动大量的子进程，可以用进程池的方式批量创建子进程
+p = Pool()
+p.apply_async(long_time_task, args=(i,))
+
+p = Pool(5)
+就可以同时跑5个进程。
+
+Process之间肯定是需要通信的，操作系统提供了很多机制来实现进程间的通信。Python的multiprocessing模块包装了底层的机制，提供了Queue、Pipes等多种方式来交换数据。
+q = Queue()
+
+Python的线程是真正的Posix Thread，而不是模拟出来的线程。
+
+Python的标准库提供了两个模块：thread和threading，thread是低级模块，threading是高级模块，对thread进行了封装。绝大多数情况下，我们只需要使用threading这个高级模块。
+
+启动一个线程就是把一个函数传入并创建Thread实例，然后调用start()开始执行：
+t = threading.Thread(target=loop, name='LoopThread')
+
+多线程和多进程最大的不同在于，多进程中，同一个变量，各自有一份拷贝存在于每个进程中，互不影响，而多线程中，所有变量都由所有线程共享，所以，任何一个变量都可以被任何一个线程修改，因此，线程之间共享数据最大的危险在于多个线程同时改一个变量，把内容给改乱了。
+
+线程锁（互斥锁）：由于锁只有一个，无论多少线程，同一时刻最多只有一个线程持有该锁，所以，不会造成修改的冲突。创建一个锁就是通过threading.Lock()来实现：
+lock = threading.Lock()
+在代码段：
+lock.acquire()
+执行代码//临界区
+lock.release()
+
+因为Python的线程虽然是真正的线程，但解释器执行代码时，有一个GIL锁：Global Interpreter Lock，任何Python线程执行前，必须先获得GIL锁，然后，每执行100条字节码，解释器就自动释放GIL锁，让别的线程有机会执行。这个GIL全局锁实际上把所有线程的执行代码都给上了锁，所以，多线程在Python中只能交替执行，即使100个线程跑在100核CPU上，也只能用到1个核。
+
+GIL是Python解释器设计的历史遗留问题，通常我们用的解释器是官方实现的CPython，要真正利用多核，除非重写一个不带GIL的解释器。
+
+所以，在Python中，可以使用多线程，但不要指望能有效利用多核。如果一定要通过多线程利用多核，那只能通过C扩展来实现，不过这样就失去了Python简单易用的特点。
+
+不过，也不用过于担心，Python虽然不能利用多线程实现多核任务，但可以通过多进程实现多核任务。多个Python进程有各自独立的GIL锁，互不影响。
+
+
+//threadlocal的好处就是在每个线程里面里的局部数据可以变为相当于本线程的全局变量
+全局变量local_school就是一个ThreadLocal对象，每个Thread对它都可以读写student属性，但互不影响。你可以把local_school看成全局变量，但每个属性如local_school.student都是线程的局部变量，可以任意读写而互不干扰，也不用管理锁的问题，ThreadLocal内部会处理。
+
+可以理解为全局变量local_school是一个dict，不但可以用local_school.student，还可以绑定其他变量，如local_school.teacher等等。
+
+ThreadLocal最常用的地方就是为每个线程绑定一个数据库连接，HTTP请求，用户身份信息等，这样一个线程的所有调用到的处理函数都可以非常方便地访问这些资源。
+
+多进程模式最大的优点就是稳定性高，因为一个子进程崩溃了，不会影响主进程和其他子进程。（当然主进程挂了所有进程就全挂了，但是Master进程只负责分配任务，挂掉的概率低）著名的Apache最早就是采用多进程模式。
+
+多进程模式的缺点是创建进程的代价大，在Unix/Linux系统下，用fork调用还行，在Windows下创建进程开销巨大。另外，操作系统能同时运行的进程数也是有限的，在内存和CPU的限制下，如果有几千个进程同时运行，操作系统连调度都会成问题。
+
+多线程模式通常比多进程快一点，但是也快不到哪去，而且，多线程模式致命的缺点就是任何一个线程挂掉都可能直接造成整个进程崩溃，因为所有线程共享进程的内存。在Windows上，如果一个线程执行的代码出了问题，你经常可以看到这样的提示：“该程序执行了非法操作，即将关闭”，其实往往是某个线程出了问题，但是操作系统会强制结束整个进程。
+
+在Windows下，多线程的效率比多进程要高，所以微软的IIS服务器默认采用多线程模式。由于多线程存在稳定性的问题，IIS的稳定性就不如Apache。为了缓解这个问题，IIS和Apache现在又有多进程+多线程的混合模式，真是把问题越搞越复杂。
+
+对应到Python语言，单进程的异步编程模型称为协程，有了协程的支持，就可以基于事件驱动编写高效的多任务程序。我们会在后面讨论如何编写协程。
+
+Python的multiprocessing模块不但支持多进程，其中managers子模块还支持把多进程分布到多台机器上。一个服务进程可以作为调度者，将任务分布到其他多个进程中，依靠网络通信。由于managers模块封装很好，不必了解网络通信的细节，就可以很容易地编写分布式多进程程序。
+
+正则表达式是一种用来匹配字符串的强有力的武器。它的设计思想是用一种描述性的语言来给字符串定义一个规则，凡是符合规则的字符串，我们就认为它“匹配”了，否则，该字符串就是不合法的。
+正则表达式规则：
+1.用\d可以匹配一个数字，\w可以匹配一个字母或数字
+2..可以匹配任意一个字符
+3.用*表示任意个字符（包括0个），用+表示至少一个字符，用?表示0个或1个字符，用{n}表示n个字符，用{n,m}表示n-m个字符
+4.要做更精确地匹配，可以用[]表示范围,[0-9a-zA-Z\_]可以匹配一个数字、字母或者下划线
+5.A|B可以匹配A或B,^表示行的开头，^\d表示必须以数字开头,$表示行的结束，\d$表示必须以数字结束;py也可以匹配'python'，但是加上^py$就变成了整行匹配，就只能匹配'py'了
+
+eg.
+\d{3}\s+\d{3,8}。
+
+我们来从左到右解读一下：
+
+\d{3}表示匹配3个数字，例如'010'；
+
+\s可以匹配一个空格（也包括Tab等空白符），所以\s+表示至少有一个空格，例如匹配' '，' '等；
+
+\d{3,8}表示3-8个数字，例如'1234567'。
+
+综合起来，上面的正则表达式可以匹配以任意个空格隔开的带区号的电话号码。
+
+'-'是特殊字符，在正则表达式中，要用'\'转义
+
+
+Python提供re模块，包含所有正则表达式的功能。由于Python的字符串本身也用\转义，所以要特别注意：
+
+'a b   c'.split(' ')//切分字符串，不是识别连续的空格
+ re.split(r'\s+', 'a b   c')//正则表达式可以识别连续的空格
+re.split(r'[\s\,\;]+', 'a,b;; c  d')
+['a', 'b', 'c', 'd']
+
+除了简单地判断是否匹配之外，正则表达式还有提取子串的强大功能。用()表示的就是要提取的分组（Group）。比如：
+
+^(\d{3})-(\d{3,8})$分别定义了两个组，可以直接从匹配的字符串中提取出区号和本地号码：
+
+m = re.match(r'^(\d{3})-(\d{3,8})$', '010-12345')
+ m.group(1)
+'010'
+>>> m.group(2)
+'12345'
+
+最后需要特别指出的是，正则匹配默认是贪婪匹配，也就是匹配尽可能多的字符。举例如下，匹配出数字后面的0：
+
+>>> re.match(r'^(\d+)(0*)$', '102300').groups()
+('102300', '')
+由于\d+采用贪婪匹配，直接把后面的0全部匹配了，结果0*只能匹配空字符串了。
+
+必须让\d+采用非贪婪匹配（也就是尽可能少匹配），才能把后面的0匹配出来，加个?就可以让\d+采用非贪婪匹配：
+
+>>> re.match(r'^(\d+?)(0*)$', '102300').groups()
+('1023', '00')
+
+如果一个正则表达式要重复使用几千次，出于效率的考虑，我们可以预编译该正则表达式，接下来重复使用时就不需要编译这个步骤了，直接匹配
+
+ re_telephone = re.compile(r'^(\d{3})-(\d{3,8})$')
+re_telephone.match('010-12345').groups()
+('010', '12345')
+
+namedtuple是一个函数，它用来创建一个自定义的tuple对象，并且规定了tuple元素的个数，并可以用属性而不是索引来引用tuple的某个元素。
+ from collections import namedtuple
+>>> Point = namedtuple('Point', ['x', 'y'])
+>>> p = Point(1, 2)
+>>> p.x
+1
+>>> p.y
+2
+
+deque是为了高效实现插入和删除操作的双向列表，适合用于队列和栈；deque除了实现list的append()和pop()外，还支持appendleft()和popleft()，这样就可以非常高效地往头部添加或删除元素。
+使用dict时，如果引用的Key不存在，就会抛出KeyError。如果希望key不存在时，返回一个默认值，就可以用defaultdict
+from collections import defaultdict
+>>> dd = defaultdict(lambda: 'N/A')
+使用dict时，Key是无序的。在对dict做迭代时，我们无法确定Key的顺序。
+
+如果要保持Key的顺序，可以用OrderedDict；注意，OrderedDict的Key会按照插入的顺序排列，不是Key本身排序；OrderedDict可以实现一个FIFO（先进先出）的dict，当容量超出限制时，先删除最早添加的Key
+Counter是一个简单的计数器，例如，统计字符出现的个数；from collections import Counter
+>>> c = Counter()
+>>> for ch in 'programming':
+...     c[ch] = c[ch] + 1
+...
+>>> c
+Counter({'g': 2, 'm': 2, 'r': 2, 'a': 1, 'i': 1, 'o': 1, 'n': 1, 'p': 1})
+
+Base64是一种用64个字符来表示任意二进制数据的方法；Base64编码会把3字节的二进制数据编码为4字节的文本数据，长度增加33%，好处是编码后的文本数据可以在邮件正文、网页等直接显示。
+base64:原文本中取三个字节，这样有24个bit然后分为四组，这样每组有6bit，6bit可以表示2的6次方也就是64个字符，因此我们事先准备好64个字符的list:['A', 'B', 'C', ... 'a', 'b', 'c', ... '0', '1', ... '+', '/'],把4组翻译成4个字符。
+ import base64
+>>> base64.b64encode('binary\x00string')
+'YmluYXJ5AHN0cmluZw=='
+
+由于标准的Base64编码后可能出现字符+和/，在URL中就不能直接作为参数，所以又有一种"url safe"的base64编码，其实就是把字符+和/分别变成-和_
+base64.b64encode('i\xb7\x1d\xfb\xef\xff')
+'abcd++//'
+>>> base64.urlsafe_b64encode('i\xb7\x1d\xfb\xef\xff')
+'abcd--__'
+>>> base64.urlsafe_b64decode('abcd--__')
+'i\xb7\x1d\xfb\xef\xff'
+
+还可以自己定义64个字符的排列顺序，这样就可以自定义Base64编码，不过，通常情况下完全没有必要。
+
+Base64是一种通过查表的编码方法，不能用于加密，即使使用自定义的编码表也不行。
+
+Base64适用于小段内容的编码，比如数字证书签名、Cookie的内容等。
+
+由于=字符也可能出现在Base64编码中，但=用在URL、Cookie里面会造成歧义，所以，很多Base64编码后会把=去掉
+Base64是一种任意二进制到文本字符串的编码方法，常用于在URL、Cookie、网页中传输少量二进制数据
+
+Python的hashlib提供了常见的摘要算法，如MD5，SHA1等等
+MD5是最常见的摘要算法，速度很快，生成结果是固定的128 bit字节，通常用一个32位的16进制字符串表示。
+
+另一种常见的摘要算法是SHA1，调用SHA1和调用MD5完全类似；
+SHA1的结果是160 bit字节，通常用一个40位的16进制字符串表示。
+
+比SHA1更安全的算法是SHA256和SHA512，不过越安全的算法越慢，而且摘要长度更长
+用户注册时设置的密码是变换为MD5存储在数据库中的（不可逆），当用户登录时，首先计算用户输入的明文口令的MD5，然后和数据库存储的MD5对比，如果一致，说明口令输入正确，如果不一致，口令肯定错误。
+由于常用口令的MD5值很容易被计算出来，所以，要确保存储的用户口令不是那些已经被计算出来的常用口令的MD5，这一方法通过对原始口令加一个复杂字符串来实现，俗称“加盐”：
+
+def calc_md5(password):
+    return get_md5(password + 'the-Salt')
+经过Salt处理的MD5口令，只要Salt不被黑客知道，即使用户输入简单口令，也很难通过MD5反推明文口令。
+
+操作XML有两种方法：DOM和SAX。DOM会把整个XML读入内存，解析为树，因此占用内存大，解析慢，优点是可以任意遍历树的节点。SAX是流模式，边读边解析，占用内存小，解析快，缺点是我们需要自己处理事件。
+
+正常情况下，优先考虑SAX，因为DOM实在太占内存。
+
+在Python中使用SAX解析XML非常简洁，通常我们关心的事件是start_element，end_element和char_data，准备好这3个函数，然后就可以解析xml了。
+
+Python提供了HTMLParser来非常方便地解析HTML
+
+基本上，所有的第三方模块都会在PyPI - the Python Package Index上注册，只要找到对应的模块名字，即可用easy_install或者pip安装。
+
+import Image, ImageFilter
+
+im = Image.open('/Users/michael/test.jpg')
+im2 = im.filter(ImageFilter.BLUR)
+im2.save('/Users/michael/blur.jpg', 'jpeg')
+
+Python支持多种图形界面的第三方库，包括：
+
+Tk
+
+wxWidgets
+
+Qt
+
+GTK
+
+等等。
+
+但是Python自带的库是支持Tk的Tkinter，使用Tkinter，无需安装任何包，就可以直接使用。本章简单介绍如何使用Tkinter进行GUI编程。
+
+收取邮件分两步：
+
+第一步：用poplib把邮件的原始文本下载到本地；
+
+第二部：用email解析原始文本，还原为邮件对象。
+
+SQLite是一种嵌入式数据库，它的数据库就是一个文件。由于SQLite本身是C写的，而且体积很小，所以，经常被集成到各种应用程序中，甚至在iOS和Android的App中都可以集成。cursor = conn.cursor()//cursor是执行的基础cursor.execute('create table user (id varchar(20) primary key, name varchar(20))')
+cursor.close()
+# 提交事务:
+>>> conn.commit()
+# 关闭Connection:
+>>> conn.close()
+values = cursor.fetchall()
+使用Python的DB-API时，只要搞清楚Connection和Cursor对象，打开后一定记得关闭，就可以放心地使用。
+
+使用Cursor对象执行insert，update，delete语句时，执行结果由rowcount返回影响的行数，就可以拿到执行结果。
+
+使用Cursor对象执行select语句时，通过featchall()可以拿到结果集。结果集是一个list，每个元素都是一个tuple，对应一行记录。
+
+如果SQL语句带有参数，那么需要把参数按照位置传递给execute()方法，有几个?占位符就必须对应几个参数，例如：
+
+cursor.execute('select * from user where id=?', '1')
+SQLite支持常见的标准SQL语句以及几种常见的数据类型
+
+由于MySQL服务器以独立的进程运行，并通过网络对外服务，所以，需要支持Python的MySQL驱动来连接到MySQL服务器。
+
+目前，有两个MySQL驱动：
+
+mysql-connector-python：是MySQL官方的纯Python驱动；
+
+MySQL-python：是封装了MySQL C驱动的Python驱动。
+
+可以把两个都装上，使用的时候再决定用哪个：
+
+$ easy_install mysql-connector-python
+$ easy_install MySQL-python
+
+MySQL的SQL占位符是%s；
+
+通常我们在连接MySQL时传入use_unicode=True，让MySQL的DB-API始终返回Unicode。
+
+在Python中，最有名的ORM框架是SQLAlchemy。我们来看看SQLAlchemy的用法。
+
+首先通过easy_install或者pip安装SQLAlchemy：
+
+$ easy_install sqlalchemy
+
+关键是获取session，然后把对象添加到session，最后提交并关闭。Session对象可视为当前数据库连接
+
+ORM框架的作用就是把数据库表的一行记录与一个对象互相做自动转换。
+
+正确使用ORM的前提是了解关系数据库的原理。
+
+Python内置了一个WSGI服务器，这个模块叫wsgiref，它是用纯Python编写的WSGI服务器的参考实现。所谓“参考实现”是指该实现完全符合WSGI标准，但是不考虑任何运行效率，仅供开发和测试使用
+
+无论多么复杂的Web应用程序，入口都是一个WSGI处理函数。HTTP请求的所有输入信息都可以通过environ获得，HTTP响应的输出都可以通过start_response()加上函数返回值作为Body。
+
+复杂的Web应用程序，光靠一个WSGI函数来处理还是太底层了，我们需要在WSGI之上再抽象出Web框架，进一步简化Web开发。
+
+除了Flask，常见的Python Web框架还有：
+
+Django：全能型Web框架；
+
+web.py：一个小巧的Web框架；
+
+Bottle：和Flask类似的Web框架；
+
+Tornado：Facebook的开源异步Web框架。
+Flask示例：
+from flask import Flask
+from flask import request
+
+app = Flask(__name__)
+@app.route('/signin', methods=['GET'])
+def signin_form():
+    return '''<form action="/signin" method="post">
+              <p><input name="username"></p>
+              <p><input name="password" type="password"></p>
+              <p><button type="submit">Sign In</button></p>
+              </form>'''
+@app.route('/signin', methods=['POST'])
+def signin():
+    # 需要从request对象读取表单内容：
+    if request.form['username']=='admin' and request.form['password']=='password':
+        return '<h3>Hello, admin!</h3>'
+    return '<h3>Bad username or password.</h3>'
+当我们在浏览器中输入http://localhost:5000/signin，会显示登录表单：
+
+使用模板，我们需要预先准备一个HTML文档，这个HTML文档不是普通的HTML，而是嵌入了一些变量和指令，然后，根据我们传入的数据，替换后，得到最终的HTML，发送给用户：
+
+Flask默认支持的模板是jinja2，所以我们先直接安装jinja2：
+
+在Jinja2模板中，我们用{{ name }}表示一个需要替换的变量。很多时候，还需要循环、条件判断等指令语句，在Jinja2中，用{% ... %}表示指令。
+
+除了Jinja2，常见的模板还有：
+
+Mako：用<% ... %>和${xxx}的一个模板；
+
+Cheetah：也是用<% ... %>和${xxx}的一个模板；
+
+Django：Django是一站式框架，内置一个用{% ... %}和{{ xxx }}的模板。
+
+协程，又称微线程，纤程。英文名Coroutine
+
+协程看上去也是子程序，但执行过程中，在子程序内部可中断，然后转而执行别的子程序，在适当的时候再返回来接着执行。
+
+注意，在一个子程序中中断，去执行其他子程序，不是函数调用，有点类似CPU的中断
+假设由协程执行，在执行A的过程中，可以随时中断，去执行B，B也可能在执行过程中中断再去执行A，但是在A中是没有调用B的，所以协程的调用比函数调用理解起来要难一些；看起来A、B的执行有点像多线程，但协程的特点在于是一个线程执行；
+
+最大的优势就是协程极高的执行效率。因为子程序切换不是线程切换，而是由程序自身控制，因此，没有线程切换的开销，和多线程比，线程数量越多，协程的性能优势就越明显。
+
+第二大优势就是不需要多线程的锁机制，因为只有一个线程，也不存在同时写变量冲突，在协程中控制共享资源不加锁，只需要判断状态就好了，所以执行效率比多线程高很多。
+
+因为协程是一个线程执行，那怎么利用多核CPU呢？最简单的方法是多进程+协程，既充分利用多核，又充分发挥协程的高效率，可获得极高的性能。
+
+Python对协程的支持还非常有限，用在generator中的yield可以一定程度上实现协程。虽然支持不完全，但已经可以发挥相当大的威力了。
+
+gevent是第三方库，通过greenlet实现协程，其基本思想是：
+
+当一个greenlet遇到IO操作时，比如访问网络，就自动切换到其他的greenlet，等到IO操作完成，再在适当的时候切换回来继续执行。由于IO操作非常耗时，经常使程序处于等待状态，有了gevent为我们自动切换协程，就保证总有greenlet在运行，而不是等待IO。由于切换是在IO操作时自动完成，所以gevent需要修改Python自带的一些标准库，这一过程在启动时通过monkey patch完成：
+
+当然，实际代码里，我们不会用gevent.sleep()去切换协程，而是在执行到IO操作时，gevent自动切换
+
+使用gevent，可以获得极高的并发性能，但gevent只能在Unix/Linux下运行，在Windows下不保证正常安装和运行。
+
+由于gevent是基于IO切换的协程，所以最神奇的是，我们编写的Web App代码，不需要引入gevent的包，也不需要改任何代码，仅仅在部署的时候，用一个支持gevent的WSGI服务器，立刻就获得了数倍的性能提升。具体部署方式可以参考后续“实战”-“部署Web App”一节。
+
+
+__enter__()和__exit__()的对象可以用于with语句，确保任何情况下__exit__()方法可以被调用。也就是说只要在函数中定义了这两个函数，就可以用with语句，然后再执行with里的语句前执行__enter__函数，在结束后执行__exit__函数，是一个简单的修饰器模型 
+
+把_ConnectionCtx的作用域作用到一个函数调用上，可以这么写：
+
+with connection():
+    do_some_db_operation()
+
+但是更简单的写法是写个@decorator：
+
+@with_connection
+def do_some_db_operation():
+    pass

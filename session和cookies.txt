@@ -1,0 +1,26 @@
+﻿      session和cookies我们从他们的翻译入手就很形象了，session表示一个会话，既然是会话就会有始有终，因此一个窗口和其子窗口就构成了一个会话，cookie是饼干，一块一块的，放在了客户端。在运行期间，session和cookie都是一个对象，运行在内存中，因此，结束了会话等这个对象自然就会被回收了。ServletContext也是一个对象，只是这个对象可以理解为是有Tomcat new出来的，因此Tomcat不倒，那他就不会消失。session和cookies比起，一个是放在服务器一个是放在客户端，一个在一套窗口来回切换，一个则只是在子路经才能访问的。
+
+     servlet中的javabean，就是一个小豆子程序，所谓小豆子程序，就是一小段代码（一小段经常被使用的代码，只提供静态的成员方法（因为可以直接调用），他必须有一个空的构造方法），完成一个小功能。是一个类，提高复用性和配置性（单点维护）。
+
+    所谓JSP也就是一个Servlet，只是这个Servlet比较隐蔽，是在Servlet上包装了一层引擎，使得编写html脚本变得简单，也就是你编写了一个jsp，然后tomcat自己把你写的jsp翻译成Servlet，然后在运行Servlet....为什么要用jsp呢，因为jsp写html代码很简单方便^_^。后来的嵌入式java代码升级为标签型的语法，是为了美工的方便...^_^.
+
+JSP语法：
+
+               Scriptlet,<%代码%>，如<%=a.getDate()%>或者<%out.print(a.getDate);%>::执行java代码段，其中<%= %>==out.ptintln();//等号是为了打印变量
+
+              Declaration,<%! 变量，函数等%>,如<%! int a=0; void func(){}%>//写在!号里的东西，在生成Servlet时声明在了成员变量了，而不再！的变量，被声明在生成的Servelet的_jspService()这个方法里了（注：这个_jspService()也是由doGet()doPost转到的，这点注意所以在生成的Servlet中就没有了doGet()和doPost()了，因为这个Servlet是继承的Servlet），因此要注意啊方法一定写在!里的，因为_jspService()里不能再定义方法哦^_^，因此如要注意的一项就是尽量不要再!号里设置成员变量，因为Servlet的并发访问也在运行咧！注：java的注释<%--  --%>,html的注释//java的注释不送往客户端，html的注释送往客户端（也就是在网页源文件中存在），但是html的注释是没有办法阻止java代码的执行的，js代码是在客户端执行，java代码是在服务器执行。
+
+            Directive,<%@Direction 属性=“属性值”%>，是编译指令，是在编译期间执行的指令（jsp转换为Servlet时执行的指令），其中Directive=page||include||taglib,page:指定这个页面的元数据，比如要引入的包，错误页面指向，页面的语言。是否可以提供session等；include:<%@include file=“url”%>,包含一个页面url=路径/xxx.jsp，把xxx.jsp复制到那个位置，静态包含（jsp转成Servlet时复制过去的，只生成一个class即一个Servelet，这中静态包含不能传参数因为参数是客户端给的嘛，而这个复制在写好代码时就复制过去了，所以喽！：：包含页面与被包含页面访问的是同一个request对象//只要想到他是怎么转化为Servlet的，一切都好理解（例如一个request对象，在Servelet中就是一句代码，然后下面两个界面都调用了request的话，完全都能调用的，因为包含的jsp是直接通过out.print()+java代码段复制过去的（如果用到了代码段的话）））。千万要注意是完全复制过去哦，因此注意两个页面的相同元素的的重复定义哦（比如都写了页面的编码，如果不一样的话，就会出现同一个元数据被定义两遍...危险哦）（不过重复的html就无所谓了，浏览器是支持的，但是java中的东西服务器就会不支持的哦）
+
+         Action,动作指令，是在运行期间执行的指令，以标签的形式存在。常见的有：
+
+< ??/>::jsp:useBean(jsp:setProperty,jsp:getProperty);jsp:include(动态包含可传参数，而且被包含的可以拥有包含的所有参数，因此被包含的jsp参数列表空间比源jsp要大：不是copy是动态加载);jsp:forward(jsp:param);jsp:plugin(嵌入applet)
+转向：forward和sendRedirect:区别，sendRedirect需要到客户端的一个往返（效率不高，地址栏有变化，response.sendDedirect("地址")）转走之后当前界面的内容还会继续执行，这种转法可以转服务器以外的其他的网址如google，因为，他想到与跑到客户端在地址栏敲了一下地址然后点了一下回车，使得前一个页面的参数全部丢失，但是在地址栏可以加?加参数，因为只是复制地址到搜索栏嘛（只能这样传参数）；forward(<jsp:forward page="xxx.jsp" />)，地址栏没有变化（因为没有和客户端打交道，（地址栏不知道你转了几圈）直接在服务器内部转来转去，因此就不能转到外部的地址），可以传参数（像动态加载的参数空间），而且转走后下面的语句不会再执行。
+
+       javabean:jsp调用javaBean的时候，sun规定布恩那个用裸体类；使用方法：<jsp:useBean id="名字（随便）" class="小豆子的类文件"></useBean>(他就相当于 小豆子 名字=new 小豆子();，因此这样的小豆子里的方法可以不是静态的)用下面的标签对小豆子里的成员变量赋值：<jsp:setProperty name="new出来的小豆子的名字" property="小豆子里的部分方法" value="xx"/>//这里面的value可以直接是从上个页面得到的值，相当于调用了request.getParamter("xx");
+
+得到值：<jsp:getProperty name="豆子名" property="部分方法名"/>(相当于调用了里面的方法，tomcat连蒙带猜的调用在部分方法名前加set或get，因此在小豆子里的方法一定得用get??()或set??()命名，小豆子的约束很多这个算是他的原因之一)；小豆子实例的作用范围，默认是page，还有request、session和application，在useBean便签里加scope="page/re...",request范围相当于动态加载的参数空间范围（上一个页面的参数以及上课页面传给当前页面的参数），加上了不同的标签就相当于在不同的盒子里装了一个小豆子，这个盒子能传多久，小豆子就能个传多久（盒子的作用范围依次增大）。
+
+      对于get和post乱码问题，解决办法是，首先在page元数据上指明编码方式如gbk可以解决get乱码，然后在下面加一句request.setCharacterEncoding("GBK"),解决post乱码。。。
+
+             

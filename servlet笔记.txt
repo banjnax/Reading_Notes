@@ -1,0 +1,47 @@
+﻿servlet可以是一个实现了httpServlet接口的class，里面有request和respond来处理客户端的访问请求。
+web.xml里的配置：<servlet>标签是给我们的servlet起一个名字，然后指定这个名字对应的class，<servlet-mapping>是指对一个servlet来说，我们在IE中敲什么路径时可以访问到这个servlet（当然喽，要用servlet的名字做标识，也就是一个servlet名字和一个访问路径）。
+生命周期：
+classLoader（一次）-->new calss（一次）-->init(ServletConfigure)（一次）-->service(doget;dopost)（多次，可以其多线程处理多个client）-->destory（一次）:::(只有一个servlet对象)：：：也就是说一个Servlet(就是一个class)被装载进tomcat中后，就只有一份他自己，来多个client，tomcat会在这个class上其多个线程来处理。
+request.getParameters("ParaName")//获得参数
+request.setCharacterEncodeing("GBK");//以GBK的方式获得request的参数（主要是对中文的处理）
+<input>type有：radio,password,submit,text
+cookies:
+1.服务器向客户端写内容
+2.只能是文本
+3.可以阻止写入
+4.服务器只能拿属于自己webapp的cookie
+5.两种类型：1-；属于窗口/子窗口（放在内存中的）2-；属于文本（有生命周期，放在硬盘上）
+6.一个servlet/jsp设置的cookies能够被同一个路径下面或或者子路经下面的serlet/jsp读到（路径=URL）（路径！=真实文件路径）这个路径是servlet在web.xml中配置的路径
+Cookie co=new Cookie("name",value);co.setMaxAge(600);respond.addCookie(co)//写到客户端，没有设置maxAge的话，就只存活在IE内存里
+request.getCookies()//client请求会把cookies带到服务器
+session放在服务器端，不过为了和客户端关联，需要在客户端IE内存（注意是在浏览器内存中）中间隔cookie存jsessionid（就是seesion的ID）
+HttpSession session = request.getSession(),sesison.setAttribute("name",value),sesion.getAttribute("name")
+session与路径没关系（因为在IE内存里）
+如果cookies被禁掉了的话，服务器会把seesionid放在url后面（用jsessionid标识，这样的话，就可以用jseeionid通信了），利用url重写：respond.encodeURL(request.getRequestURL().toString())
+web.xml里session-config-->session-timeout(分钟)
+注意：一般来说不要再servlet中设置成员变量：因为设置了成员变量，当多个用户访问时（多线程），用的会是同一个成员变量，造成混乱！！！但是也不是没有用，比如说我想统计访问量，这个就有用了，注意哦！！设计时考虑是否有必要设计成员变量，一般这种情况不多。
+session和cookies篮子比较小，只能存储一个会话的信息，大一点的篮子application context：这个篮子管这整个servlet声明周期
+ServletContext app = this.getServletContext(),可以用app来get,set属性了：：asp和php都有这个概念
+连接数据库：
+1.注册驱动程序（Class.forName("com.mysql.jdbc.Drive")）：：注意这里的驱动只是个字符串，因为是运行在Tomcat中，因此把相应驱动考到tomcat中即可
+2.从连接吃拿到一个连接，Connection cnn=DriverManager.getConnection("jdbc:mysql://localhost/bbs?user=root&password=root")
+3.创建statement:Statement sts = cnn.createStatement();
+4.执行query:sta.create.executeQuery("SQL语句");
+Servlet filter；web.xml中配置：<filter>和<filter-mapping>，他和servlet的配置一样，只是他是在找到url-pattern的servlet之前调用的方法类（doFilter()）,可串联
+Listener是Servlet的监听器，它可以监听客户端的请求、服务端的操作等。通过监听器，可以自动激发一些操作，比如监听在线的用户的数量。当增加一个HttpSession时，就激发sessionCreated(HttpSessionEvent se)方法，这样就可以给在线人数加1。理解为中断
+对于jsp：成员变量和方法写在<%!  %>,局部变量写在<%  %>
+编译指令（其实没有很大的用处，因为他只是处理了编译的工作，然后什么都没做，最重要的就说那个import以及page属性了（比如编码啦，session啦，缓存啦什么的））：在编译期间执行的指令<%@{page, taglib,include}>就是在jsp变为servlet中执行的指令（比如import类啊什么的）；<%@include file="xx.jsp">这个经常用，比如每一个页面都有一些通用的东西，比如侧栏啦，大标题栏啦等（这个是静态包含）：静态包含不能传参数，因为是在编译期间把被包含的转换为java了，而参数一般是客户来做的，所以不行，但是他们拥有相同的内置对象，因为他们两个最终是一个serlvet来弄的，访问的是相同的request（因为是同一个servlet）
+动作指令（在运行期间的指令）：<jsp:{useBean,setProperty,getProperty,include}>/> ::动态包含，会生成两个servlet因此request不能共享（虽然不能共享，不是同一个对象，但是也能取出来包含他的页面的参数，也可传参，而且被包含页面request可取的参数比包含他的更大，能取到所有包含他的页面的参数还能接受包含他页面传来的参数）：：：动态包含还可以以标签的形式传参数：：<jsp:param  name="" value="" />
+<form action="xxx.jsp">form的action用来跳转，不管是jsp,.action，servlet等都可以用他来跳转
+转向：
+硬转向：respond.sendRedirect("xxx.jsp"):这个xxx.jsp要写路径的话是以域名做起始的，因为是跑到浏览器按的回车，，//两次和服务器打交道（第一次把地址发过去，然后服务器又把地址传过去并在浏览器中点了个回车：第二次，点了回车之后在和去服务器请求，缺点很明显，有点有一个，可以访问站外网址，如百度，google等）  
+软转向：<jsp:forward page="xx.jsp">这个xxx.jsp要写路径的话，是以webapp做起始的，因为是在服务器内转，，是在服务器内部转，不在和浏览器打交道。地址栏没有变化。
+<jsp:useBean id="idNUM" class="com.xx.testBean"></jsp:useBean>:://这里使用bean可以是为了临时保存一些东西在内存中，给定生命周期的bean是很有用的。比如说你用了一个bean，这个bean就在内存中了（而且指定了一个ID），然后在bean的指定范围内的页面都可以从内存中拿到这个bean，比如可以让这个bean保存个参数来传输啦什么的。那个标签就相当于在servlet中写了TestBean idNUM = new Testabaen():://因为bean的方法里只有get和set，因此可以用标签来访问方法，比如<jsp:setProperty name="idNUM" property="NUM"  value="xx"/>也就是调用了idNum.setNum(value):://为什么要用property呢，这是因为get和set方法都是对一个成员变量来写的
+useBeany有下面一些参数：
+id,class,scope(指定这个bean的作用范围，默认是page,也有session,application,request（同一个request里的页面都可以用，比这个request大的也可以用）),type
+对于表单的处理和javabean结合有一个技巧，就是setproperty的时候，porperty的值可以是*，这样就表示，tomcat先扫面一下bean里面有哪些成员变量，然后把这些成员变量自动的和form表单里的input标签对应，注意的时这两者的名字要一样才可能对应。
+9个内置对象（拿起来就可以用）：
+1.输入输出对象：request、response、out；
+2.作用域通信对象：session、application、pageContext；
+3.servlet对象：page、config；
+4.异常对象：exception

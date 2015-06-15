@@ -1,0 +1,184 @@
+﻿AJAX = Asynchronous JavaScript and XML（异步的 JavaScript 和 XML）。
+AJAX 不是新的编程语言，而是一种使用现有标准的新方法。
+例子：
+<html>
+<body>
+
+<div id="myDiv"><h3>Let AJAX change this text</h3></div>
+<button type="button" onclick="loadXMLDoc()">Change Content</button>
+
+</body>
+</html>
+接下来，在页面的 head 部分添加一个 <script> 标签。该标签中包含了这个 loadXMLDoc() 函数：
+<head>
+<script type="text/javascript">
+function loadXMLDoc()
+{
+.... AJAX script goes here ...
+}
+</script>
+</head>
+
+XMLHttpRequest 是 AJAX 的基础。
+XMLHttpRequest 用于在后台与服务器交换数据。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。
+
+创建 XMLHttpRequest 对象的语法：
+variable=new XMLHttpRequest();
+如需将请求发送到服务器，我们使用 XMLHttpRequest 对象的 open() 和 send() 方法：
+xmlhttp.open("GET","test1.txt",true);
+xmlhttp.send();
+
+open(method,url,async)	
+规定请求的类型、URL 以及是否异步处理请求。
+method：请求的类型；GET 或 POST
+url：文件在服务器上的位置
+async：true（异步）或 false（同步）
+send(string)	
+将请求发送到服务器。
+string：仅用于 POST 请求
+
+如果需要像 HTML 表单那样 POST 数据，请使用 setRequestHeader() 来添加 HTTP 头。然后在 send() 方法中规定您希望发送的数据：
+xmlhttp.open("POST","ajax_test.asp",true);
+xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+xmlhttp.send("fname=Bill&lname=Gates");
+
+AJAX 指的是异步 JavaScript 和 XML（Asynchronous JavaScript and XML）。
+XMLHttpRequest 对象如果要用于 AJAX 的话，其 open() 方法的 async 参数必须设置为 true：
+
+当使用 async=true 时，请规定在响应处于 onreadystatechange 事件中的就绪状态时执行的函数：
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+    }
+  }
+xmlhttp.open("GET","test1.txt",true);
+xmlhttp.send();
+一个实在的例子：
+<html>
+<head>
+<script type="text/javascript">
+function loadXMLDoc()
+{
+var xmlhttp;
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+    }
+  }
+xmlhttp.open("GET","/ajax/test1.txt",true);
+xmlhttp.send();
+}
+</script>
+</head>
+<body>
+
+<div id="myDiv"><h2>Let AJAX change this text</h2></div>
+<button type="button" onclick="loadXMLDoc()">通过 AJAX 改变内容</button>
+
+</body>
+</html>
+
+如需使用 async=false，请将 open() 方法中的第三个参数改为 false：
+xmlhttp.open("GET","test1.txt",false);
+我们不推荐使用 async=false，但是对于一些小型的请求，也是可以的。
+请记住，JavaScript 会等到服务器响应就绪才继续执行。如果服务器繁忙或缓慢，应用程序会挂起或停止。
+注释：当您使用 async=false 时，请不要编写 onreadystatechange 函数 - 把代码放到 send() 语句后面即可：
+xmlhttp.open("GET","test1.txt",false);
+xmlhttp.send();
+document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+
+如需获得来自服务器的响应，请使用 XMLHttpRequest 对象的 responseText 或 responseXML 属性。
+
+responseText	获得字符串形式的响应数据。
+responseXML	获得 XML 形式的响应数据。
+
+如果来自服务器的响应是 XML，而且需要作为 XML 对象进行解析，请使用 responseXML 属性：
+请求 books.xml 文件，并解析响应：
+xmlDoc=xmlhttp.responseXML;
+txt="";
+x=xmlDoc.getElementsByTagName("ARTIST");
+for (i=0;i<x.length;i++)
+  {
+  txt=txt + x[i].childNodes[0].nodeValue + "<br />";
+  }
+document.getElementById("myDiv").innerHTML=txt;
+
+当请求被发送到服务器时，我们需要执行一些基于响应的任务。
+每当 readyState 改变时，就会触发 onreadystatechange 事件。
+readyState 属性存有 XMLHttpRequest 的状态信息。
+下面是 XMLHttpRequest 对象的三个重要的属性：
+onreadystatechange	存储函数（或函数名），每当 readyState 属性改变时，就会调用该函数。
+readyState	
+存有 XMLHttpRequest 的状态。从 0 到 4 发生变化。
+0: 请求未初始化
+1: 服务器连接已建立
+2: 请求已接收
+3: 请求处理中
+4: 请求已完成，且响应已就绪
+status	
+200: "OK"
+404: 未找到页面
+
+在 onreadystatechange 事件中，我们规定当服务器响应已做好被处理的准备时所执行的任务。
+当 readyState 等于 4 且状态为 200 时，表示响应已就绪：
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+    }
+  }
+
+callback 函数是一种以参数形式传递给另一个函数的函数。
+如果您的网站上存在多个 AJAX 任务，那么您应该为创建 XMLHttpRequest 对象编写一个标准的函数，并为每个 AJAX 任务调用该函数。
+该函数调用应该包含 URL 以及发生 onreadystatechange 事件时执行的任务（每次调用可能不尽相同）：
+function myFunction()
+{
+loadXMLDoc("ajax_info.txt",function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    document.getElementById("myDiv").innerHTML=xmlhttp.responseText;
+    }
+  });
+}
+
+JSON：JavaScript 对象表示法（JavaScript Object Notation）。
+JSON 是存储和交换文本信息的语法。类似 XML。
+JSON 比 XML 更小、更快，更易解析。
+相比 XML 的不同之处
+没有结束标签
+更短
+读写的速度更快
+能够使用内建的 JavaScript eval() 方法进行解析
+使用数组
+不使用保留字
+花括号保存对象
+方括号保存数组
+employees= [
+{ "firstName":"John" , "lastName":"Doe" },
+{ "firstName":"Anna" , "lastName":"Smith" },
+{ "firstName":"Peter" , "lastName":"Jones" }
+]
+
+JSON 文件的文件类型是 ".json"
+JSON 文本的 MIME 类型是 "application/json"
+JavaScript 函数 eval() 可用于将 JSON 文本转换为 JavaScript 对象。
+例如：var txt = '{ "employees" : [' +
+'{ "firstName":"Bill" , "lastName":"Gates" },' +
+'{ "firstName":"George" , "lastName":"Bush" },' +
+'{ "firstName":"Thomas" , "lastName":"Carter" } ]}';
+必须把文本包围在括号中，这样才能避免语法错误：
+var obj = eval ("(" + txt + ")");
