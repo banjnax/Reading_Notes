@@ -1,0 +1,107 @@
+Maven主要服务于基于java平台的项目构建、依赖管理和项目信息管理。
+Maven最大的贡献就在于消除重复以及浪费时间的构建。
+配置MAVEN_HOME和Path，并且下载m2e插件，并且不要使用eclipse内嵌的maven.
+再用eclipse构建maven项目时，要理解下面的几个地方：
+1.pom里的groupID,artfactID,version等是先maven仓库里的坐标，与我们实际构建的jar文件等是不一样的，例如pom里groupid=com.banjnax,artfactid=lesson1,version=1.0,我们在写java代码是的包是com.banjo.myapp.则这个最后生成的jar文件位于：com/banjnax/lesson1/1.0/lesson1_1.0.jar,在这个jar里面是一个包，包含com.banjo.myapp,注意maven中的坐标与我们项目的产品没有关系。
+2.初始状态下，eclipse会把我们项目的包（不是maven坐标）用maven坐标来表示（当然了我们可以更改也可以不变）。一般来说，项目中Java类的包都应该基于项目的groupID和artifactID,这样更加清晰，更加符合逻辑，也方便搜索和构件或者java类。
+clean告诉maven清理输出目录target/,compile告诉maven编译项目主代码。
+
+添加依赖：就是让maven自己去找相应的包，我们声明一下就行了，不需要自己去网站上去找。
+<dependencies>
+	<dependency>
+		<groupId>junit<groupId/>
+		<artifactId>junit</artifactId>
+		<version>4.7</version>
+		<scope>test</scope>//意思是测试代码中引用junit是没有问题的，主代码不行，也就是只在测试代码阶段编译。
+	</dependency>
+</dependencies>
+
+添加插件：
+<plugins>
+	<plugin>
+		<groupId>org.apache.maven.plugins<groupId/>
+		<artifactId>maven-complier-plugin</artifactId>
+		<configuration>//指定源代码与目标的编辑级别
+			<source>1.5</source>
+			<target>1.5</target>
+		</configuration>
+		<scope>test</scope>//意思是测试代码中引用junit是没有问题的，主代码不行，也就是只在测试代码阶段编译。
+	</plugin>
+</plugins>
+一个典型的单元测试包含三个步骤：1，准备测试类和数据；2，执行要测试的行为；3，检查结果。
+
+首先会找本地仓库，然后再去找远程仓库。
+中央仓库是maven核心自带的远程仓库，默认他作为默认的远程仓库（当然也可以自己配置，或者建立私服）。除了中央仓库和私服，还有很多其他公开的远程仓库如Java.net Maven库，JBoss Maven 库等。
+默认的本地仓库放在可.m2/下，我们可以配置settings.xml文件制定到其他盘：
+<localRepository>D:\..\..</localRepository>
+中央仓库的配置在下面的pom里（这个pom是所有pom都会集成的超级pom）:
+Maven_HOme/lib/mavenxxx.-uber.jar/org/apache/maven/model/pom-xx.xml
+
+关于私服：大家都回去私服上去找构件，私服负责搜集广域网上的构件：比如如果在私服上没有找到，私服会去互联网上下载。再比如如果公司的项目（秘密）生成了一些构件也会放在私服上，共内部开发人员使用。
+私服的好处：节省了自己的外网宽带；加速maven构建；部署第三方构件；提高稳定性，增强控制；降低中央仓库的负荷。
+
+在pom中配置仓库（比如JBoss的maven库）：
+<repositories>
+	<repository>
+		<id>jboss</id>
+		<name>JBoss Repository</name>
+		<url>http://,,,....//maven2</url>
+		<releases>true</releases>
+		<snapshots>
+			<enabled>false</enabled>
+		</snapshots>
+		<layout>default</layout>
+	</repository>
+</repositories>
+
+要在settings.xml中配置仓库的认证信息。
+
+如何找到所需要的构件坐标：Sonatype Nexus;Jarvana;MVNbrowser;MVNrepository
+
+maven生命周期与插件：
+每个阶段都需要插件来支持：比如针对编译有maven-complier-plugin,针对测试有maven-surefire-plugin
+
+meaven的三套生命周期：clean(清理项目),default（构建项目）,site（建立项目站点）
+常用示例：mvn clean;mvn test;mvn clean install;mvn clean deploy site-deploy;
+每一个插件都有好多插件所能完成的功能成为插件目标。如surefire:test等。
+
+插件绑定：例如项目编译这一个任务，他对应了default生命周期的complie这一阶段，而maven-complier-plugin这一插件的complie目标能够完成这个任务。因此，将他们绑定，就能实现项目编译的目的。当然了，这个绑定是内置的（就是maven自己给你绑定好了，因为大家都得用到编译啊）
+
+自定义绑定：例子把源码打成jar包，利用maven-source-plugin:jar-no-fork:
+在Plugin标签中：
+	<executions>
+		<id>attach-source</id>
+		<phase>verify</phase>//在哪个阶段打包，也可以不写，因为有很多plugin都内置了绑定
+		<goals>
+			<goal>jar-no-fork</goal>//插件目标
+		<goals>
+	<execution>
+</execution>
+
+利用<pluginRepositories>来配置插件仓库，插件功能丰富。
+
+聚合与继承：
+我们会想要一次构建两个项目，而不是到两个模块的目录下分别执行mvn命令。maven聚合就是这个功能。
+用户可以通过在一个打包方式为pom的maven项目中声明任意数量的module元素来实现模块聚合，每个module的值都是一个当前pom的相对目录。对于聚合模块的maven项目的pom文件要注意：1.打包方式为pom:<packaging>pom</packaging>
+2.一般来说与要打包的模块有相同的groupId和版本
+3.一般来说，为了方便快速定位内容，模块所处的目录名称应当与其artifactId一致。
+4.注意是相对目录，如果是平行结构，要变成../maven项目名称。
+继承：
+为什么要继承：因为有一些模块使用了重复的依赖和插件
+在子模块中用<parent>来声明父模块。（包含父的groupid,artifactid，version等）对于parent中的一个额外元素需要注意：
+<relativePath></relativePath>他定义了父模块的相对路径
+正确设置他很重要。
+设置了父模块之后，父子模块使用同样的groupid和version,所以就不需要在子模块中设置这两个东西了。
+要把父模块加入到聚合模块中。
+在父模块中使用<dependencyManagement>元素来管理子模块的依赖。在这个元素里写的依赖，需要在子模块里在写一遍（但是可以省去version）,看来并没有消除多少的东西。但是这种方式要好：当依赖版本在父POM中声明了之后，子模块在使用依赖的时候就不需要声明版本，也就不会发生多个子模块使用依赖版本不一致的情况，这可以帮助降低冲突的几率。如果子模块不声明依赖的使用，那么他也用不了父模块在dependencyManagement里声明的依赖。
+类似的，还有pluginManagement
+
+约定由于配置：Convention Over Configuration
+
+可以仔细看看《Maven实战》里的关于约定啊，编写插件啊，m2eclipse等课外知识。
+
+PS：sun 专用的API -- 完全解决办法：这个maven编译时遇到的错误折磨了我好久！最近才发现完全解决他的办法：：：
+
+首先要理清这个bug是什么：maven在complier的时候调用的实际上是jdk中的javac，而且最重要的是maven是根据javac返回的字段来判断程序是：没错，警告，还是错误的，可恨的是maven是用英文来做判断的，而javac是根据系统语言来返回字符串的，得了，就是这么错综复杂！！
+
+解决很自然的想到那就把系统语言设置为us的呗，在哪里设置呢！！经过一次尝试和一次巧合终于发现了那个设置的地方：：：不是系统语言，而是系统时间格式处的设置（奇葩啊）：：位置在:控制面板-->时钟语言和区域-->区域和语言-->格式（改为英语就行）
