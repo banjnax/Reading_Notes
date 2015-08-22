@@ -24,3 +24,22 @@ my_gui（'a','b'）;则varagin{1}='a',则varagin{2}='b'
 3.在outputfcn中设置返回值，并添加delete(handles.figure1)
 4.在想返回的callback里调用resume(handles.figure1)
 
+注意符号运算的结合点以及好处，matlabFunctions 函数
+syms q1 q2 q3 q4//定义q1-q4为符号变量
+D = @(f1, f2, f3, f4) det([//定义f1-f4为参数，这是一个函数工厂，利用f1-f4配置函数，并结合符号运算，漂亮，@表示一个匿名函数
+    -1+p1.*q1    -1+p1    -1+q1    f1
+    p2.*q3          -1+p2    q3         f2
+    p3.*q2          p3          -1+q2   f3
+    p4.*q4          p4          q4         f4
+]);
+
+s_Y = D(R, T, S, P)./D(1, 1, 1, 1);//
+s_X = D(R, S, T, P)./D(1, 1, 1, 1);
+G=gradient(s_Y);
+sy=matlabFunction(s_Y);
+sx=matlabFunction(s_X);
+g=matlabFunction(G);
+调用的时候
+ Y(i) = sy(q1, q2, q3, q4);
+    X(i) = sx(q1, q2, q3, q4);
+    Partial=g(q1, q2, q3, q4);%代入
